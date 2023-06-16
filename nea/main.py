@@ -1,4 +1,5 @@
 import pygame
+import math
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -33,6 +34,8 @@ yvelo = 0
 
 square = pygame.Surface(player.get_size())
 square.fill(BLACK)
+
+mous_xy = pygame.mouse.get_pos()
 """
 sprite_group = pygame.sprite.Group()
 
@@ -60,13 +63,27 @@ while running:
 
     player_y += yvelo
     player_x += xvelo
+    """
+    player_rect = player.get_rect()
+    mx, my = pygame.mouse.get_pos()
+    dx, dy = mx - player_rect.centerx, my - player_rect.centery
+    angle = math.degrees(math.atan2(-dy, dx)) - 90
+
+    rot_image = pygame.transform.rotate(player, angle)
+    rot_image_rect = rot_image.get_rect(center=player_rect.center)
+    
+    """
+
+    screen.fill(BLACK)
 
 
 
-    pygame.display.flip()
     screen.blit(square, (player_x,player_y))
-    screen.blit(player, (player_x,player_y))
-    dt=clock.tick(60) * .001
+    screen.blit(rot_image, (player_x, player_y))
+    pygame.display.update()
+
+    clock.tick(60)
+
 
 
 
