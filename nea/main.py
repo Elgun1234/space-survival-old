@@ -1,9 +1,13 @@
 import pygame
 import math
 
+import pygame.sprite
+
 pygame.init()
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((1820, 980))
+xres = 1820
+yres = 980
+screen = pygame.display.set_mode((xres, yres))
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 WHITE = (255,255,255)
@@ -13,6 +17,14 @@ speed = 1
 vert_max = 12
 hor_max = 16
 friction = 0.93
+
+
+class Bullets(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("mgbullets.png").convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.center = x,y
 
 
 
@@ -58,12 +70,13 @@ while running:
 
     if keys[pygame.K_d] == False and keys[pygame.K_a] == False:
         xvelo = xvelo * friction
+    #if :
 
     
     center_y += yvelo
     center_x += xvelo
-    
 
+    screen.fill(BLACK)
 
 
 
@@ -75,11 +88,19 @@ while running:
     rot_image = pygame.transform.rotate(player, angle)
     rot_image_rect = rot_image.get_rect(center=player_rect)
 
+    if center_x - 25 > xres:
+        center_x -= (25 + xres)
+    if center_x + 25 < 0:
+        center_x += xres
+    if center_y+25 >= yres:
+        center_y = yres -25
+    if center_y-25 <= 0:
+        center_y = 25
 
 
 
     player_rect = center_x, center_y
-    screen.fill(BLACK)
+
 
     screen.blit(square, (center_x-25,center_y-24))
     screen.blit(rot_image, rot_image_rect.topleft)
