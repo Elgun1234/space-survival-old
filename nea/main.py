@@ -1,5 +1,6 @@
 import pygame
 import math
+import time
 
 import pygame.sprite
 
@@ -17,14 +18,32 @@ speed = 1
 vert_max = 12
 hor_max = 16
 friction = 0.93
+mg_speed = 5
+mg_bullets = []
+mg_fr = 1
 
 
-class Bullets(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
+class Bullets:
+    def __init__(self, pos_x, pos_y,angle):
         self.image = pygame.image.load("mgbullets.png").convert_alpha()
-        self.rect = self.image.get_rect()
-        self.rect.center = x,y
+        self.x = pos_x
+        self.y = pos_y
+
+
+        self.angle = angle +90
+        self.xvelo = math.cos(2 * math.pi * (self.angle / 360)) * mg_speed
+        self.yvelo = math.sin(2 * math.pi * (self.angle / 360)) * mg_speed
+        if self.angle<-90:
+            self.xvelo = self.xvelo
+            self.yvelo =-self.yvelo
+        if self.angle<0 and self.angle>-90:
+            self.yvelo = -self.yvelo
+        if angle>-90:
+            self.yvelo = -self.yvelo
+
+
+
+
 
 
 
@@ -40,7 +59,7 @@ yvelo = 0
 
 square = pygame.Surface(player.get_size())
 square.fill(BLACK)
-print(player.get_size())
+
 
 
 
@@ -70,7 +89,7 @@ while running:
 
     if keys[pygame.K_d] == False and keys[pygame.K_a] == False:
         xvelo = xvelo * friction
-    #if :
+
 
     
     center_y += yvelo
@@ -88,6 +107,12 @@ while running:
     rot_image = pygame.transform.rotate(player, angle)
     rot_image_rect = rot_image.get_rect(center=player_rect)
 
+    buttons = pygame.mouse.get_pressed()
+    if buttons[0]:
+        mg_bullets.append(Bullets(center_x, center_y, angle))
+        #time.sleep(mg_fr)
+
+
     if center_x - 25 > xres:
         center_x -= (25 + xres)
     if center_x + 25 < 0:
@@ -104,6 +129,12 @@ while running:
 
     screen.blit(square, (center_x-25,center_y-24))
     screen.blit(rot_image, rot_image_rect.topleft)
+    for i in mg_bullets:
+        screen.blit(i.image, (i.x, i.y))
+        i.x += i.xvelo
+        i.y += i.yvelo
+        if i.x > xres or i.x<0 or i.y > yres or i.y <0:
+            mg_bullets.remove(i)
 
     pygame.draw.circle(screen, WHITE, player_rect, 5)
 
