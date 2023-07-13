@@ -111,6 +111,8 @@ while running:
     player.center_y += player.yvelo
     player.center_x += player.xvelo
 
+    enemy.center_x += 3
+
     screen.fill(BLACK)
 
 
@@ -138,6 +140,15 @@ while running:
         player.center_y = yres -25
     if player.center_y-25 <= 0:
         player.center_y = 25
+
+    if enemy.center_x - 25 > xres:
+        enemy.center_x -= (25 + xres)
+    if enemy.center_x + 25 < 0:
+        enemy.center_x += xres
+    if enemy.center_y+25 >= yres:
+        enemy.center_y = yres -25
+    if enemy.center_y-25 <= 0:
+        enemy.center_y = 25
 
 
     screen.blit(enemy.img, (enemy.center_x - 25, enemy.center_y - 25))
