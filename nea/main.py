@@ -6,13 +6,20 @@ import pygame.sprite
 pygame.init()
 clock = pygame.time.Clock()
 
-xres = 1820
-yres = 980
-
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 WHITE = (255,255,255)
 GREEN = (170, 255, 0)
+
+level = 0
+myfont = pygame.font.SysFont("Comic Sans MS", 50)
+label = myfont.render(f"level {level}", 20, WHITE)
+level_t_time = 3
+
+xres = 1820
+yres = 980
+
+
 
 screen = pygame.display.set_mode((xres, yres))
 screen.fill(BLACK)
@@ -22,17 +29,20 @@ vert_max = 12
 hor_max = 12
 friction = 0.93 # higher = more slide
 
-mg_speed = 5
+mg_speed = 7
 mg_bullets = []
 mg_tl = 7
 mg_dmg = 5
+max_mg = 200
 
 DD = 0 # dmg dealt
 
+
+
 regen_time = 3 # regen after 3 secs
-greater_regen_time = 5 # more regen after 5
+greater_regen_time = 1.5 # more regen after 5
 greater_regen_amm = 2 # 0.5 + 2 per frame
-regen_amm = 0.5
+regen_amm = 2
 start_regen = 0 # time of last hit
 
 class Bullets:
@@ -110,8 +120,7 @@ while running:
     
     player.center_y += player.yvelo
     player.center_x += player.xvelo
-
-    enemy.center_x += 3
+    enemy.center_x +=2
 
     screen.fill(BLACK)
 
@@ -140,7 +149,7 @@ while running:
         player.center_y = yres -25
     if player.center_y-25 <= 0:
         player.center_y = 25
-
+    #enemy
     if enemy.center_x - 25 > xres:
         enemy.center_x -= (25 + xres)
     if enemy.center_x + 25 < 0:
@@ -156,6 +165,26 @@ while running:
     screen.blit(rot_image, rot_image_rect.topleft)
 
     pygame.draw.rect(screen, GREEN, pygame.Rect(20 + DD, 20, xres -40 - DD, 20))
+
+    if xres -40 - DD <= 0 :
+        level_change_start = time.time()
+        level += 1
+        if time.time() - level_change_start < level_t_time:
+            screen.blit(label, (910, 440))
+            continue
+        DD = 0
+        '''
+            for i in mg_bullets:
+                mg_bullets.remove(i)
+            player.yvelo = 0
+            player.xvelo = 0
+            screen.blit(label, (910, 440))
+        '''
+
+
+
+
+
 
     for i in mg_bullets:
         if i.x<enemy.center_x+25 and i.x>enemy.center_x-45 and i.y<enemy.center_y+25 and i.y>enemy.center_y-45:
@@ -184,7 +213,7 @@ while running:
                 DD -= greater_regen_amm
     pygame.draw.rect(screen, RED, pygame.Rect(20, 20, DD, 20))
 
-    if len(mg_bullets) > 200:
+    if len(mg_bullets) > max_mg:
         del mg_bullets[0]
 
     pygame.draw.circle(screen, WHITE, (player.center_x,player.center_y), 5)
@@ -193,3 +222,4 @@ while running:
 
     clock.tick(60)
 pygame.quit()
+
