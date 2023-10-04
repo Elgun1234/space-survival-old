@@ -1,7 +1,11 @@
+import pip
+pip.main(["install", "--user", "Pygame"])
 import pygame
 import math
 import time
 import pygame.sprite
+
+
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -15,6 +19,35 @@ level = 0
 myfont = pygame.font.SysFont("Comic Sans MS", 50)
 label = myfont.render(f"level {level}", 20, WHITE)
 level_t_time = 3
+
+def write(text, font, color, x, y):
+    img = font.render(text, True, color)
+    screen.blit(img, (x,y))
+
+class Button():
+    def __init__(self,x,y,image,scale):
+        width = image.get_width()
+        height = image.get_height()
+        self.image = pygame.transform.scale(image,(width*scale),(height*scale))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x,y)
+        self.clicked = False
+
+    def Draw(self, surface):
+        action = False
+        pos = pygame.mouse.get_pos()
+
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0]==1 and self.clicked == False:
+                self.clicked = True
+                action = True
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+
+        surface.blit(self.image, (self.rect.x, self.rect.y))
+        return action
+
+
 
 xres = 1820
 yres = 980
@@ -73,23 +106,14 @@ class Fighters:
         self.xvelo = xvelo
         self.yvelo = yvelo
 
+
+
 player = Fighters(500,500,"XO",0,0,(34,50))
 enemy = Fighters(400,400,"eneymy",0,0,(50,50))
 
-'''
-player = pygame.image.load("player2.png").convert_alpha()
-player = pygame.transform.scale(player, (50, 50))
 
-enemy = pygame.image.load("eneymy.png").convert_alpha()
 
-center_x = 500
-center_y = 500
-xvelo = 0
-yvelo = 0
 
-square = pygame.Surface(player.get_size())
-square.fill(BLACK)
-'''
 
 running = True
 while running:
@@ -149,7 +173,7 @@ while running:
         player.center_y = yres -25
     if player.center_y-25 <= 0:
         player.center_y = 25
-    #enemy
+
     if enemy.center_x - 25 > xres:
         enemy.center_x -= (25 + xres)
     if enemy.center_x + 25 < 0:
@@ -166,20 +190,13 @@ while running:
 
     pygame.draw.rect(screen, GREEN, pygame.Rect(20 + DD, 20, xres -40 - DD, 20))
 
-    if xres -40 - DD <= 0 :
-        level_change_start = time.time()
-        level += 1
-        if time.time() - level_change_start < level_t_time:
-            screen.blit(label, (910, 440))
-            continue
-        DD = 0
-        '''
-            for i in mg_bullets:
-                mg_bullets.remove(i)
-            player.yvelo = 0
-            player.xvelo = 0
-            screen.blit(label, (910, 440))
-        '''
+    '''
+        for i in mg_bullets:
+            mg_bullets.remove(i)
+        player.yvelo = 0
+        player.xvelo = 0
+        screen.blit(label, (910, 440))
+    '''
 
 
 
@@ -215,6 +232,19 @@ while running:
 
     if len(mg_bullets) > max_mg:
         del mg_bullets[0]
+
+    """if xres -40 - DD <= 0 :
+        level_change_start = time.time()
+        level += 1
+        DD = xres-40
+
+        if time.time() - level_change_start < level_t_time :
+            screen.blit(label, (970, 440))
+
+
+            continue
+        DD = 0
+"""
 
     pygame.draw.circle(screen, WHITE, (player.center_x,player.center_y), 5)
 
