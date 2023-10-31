@@ -38,6 +38,7 @@ time_last_damaged = 0 # time of last hit
 DEAD = pygame.USEREVENT + 1
 NEXT_LEVEL = pygame.USEREVENT + 2
 HIT = pygame.USEREVENT + 3
+MENU = pygame.USEREVENT + 4
 class Bullets:
     def __init__(self, pos_x, pos_y,angle,time):
         img = pygame.image.load("mgbullets.png").convert_alpha()
@@ -70,7 +71,30 @@ player = Fighters(500, 500, "XO", 0, 0, (34, 50))
 enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
 
 def menu():
-    pass
+    click = False
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                break
+
+        mx, my = pygame.mouse.get_pos()
+        button1 = pygame.Rect(890, 440, 100, 50)
+        if button1.collidepoint((mx, my)):
+            if click:
+                break
+
+        click = False
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+
+
+        menu_draw(button1)
+
+def menu_draw(button1):
+    pygame.draw.rect(screen, WHITE, button1)
+    pygame.display.update()
+
+
 def player_movement(keys, player):
 
     if keys[pygame.K_w]:
@@ -159,7 +183,7 @@ def draw(rot_image,rot_image_rect,mg_bullets,DD):
     pygame.display.update()
 def main():
     clock = pygame.time.Clock()
-
+    pygame.event.post(pygame.event.Event(MENU))
     run = True
     while run:
         clock.tick(FPS)
@@ -168,6 +192,8 @@ def main():
                 run = False
             if event.type == NEXT_LEVEL:
                 pass
+            if event.type == MENU:
+                menu()
 
         keys = pygame.key.get_pressed()
         buttons = pygame.mouse.get_pressed()
