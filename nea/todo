@@ -1,3 +1,30 @@
+inputs?:
+    its own: location
+             speed
+             direction
+	     powerups
+             health
+
+    player's speed
+             direction
+             location
+	     powerups
+             health
+             bullets left
+             dps (something to tell ai whether to be agg or not)
+    
+    Bullets speed
+            direction
+            location
+
+output:
+	up
+	down
+	left
+	right
+	shoot
+	nothing
+
 menu - login signup etc
 hearts
 enemy bullets and hit reg
