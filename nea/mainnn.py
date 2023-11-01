@@ -2,12 +2,23 @@ import pygame
 import math
 import time
 
+
+pygame.font.init()
+
+button_font = pygame.font.Font("ShortBaby-Mg2w.ttf",30)
+TITLE_font =pygame.font.Font("ChrustyRock-ORLA.ttf",100)
+
+button_gap = 30
+
 width, height = 1820 , 980
 screen = pygame.display.set_mode((width, height))
 
-bg= pygame.image.load("bg.png")
-bg = pygame.transform.scale(bg, (1820, 980))
+
+stars = pygame.image.load("star_sky.jpg")
+stars = pygame.transform.scale(stars, (width, height))
+
 pygame.display.set_caption("gods gift to gamers")
+TITLE = "SPACE FLY SHOOT AI GAME"
 
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -39,6 +50,7 @@ DEAD = pygame.USEREVENT + 1
 NEXT_LEVEL = pygame.USEREVENT + 2
 HIT = pygame.USEREVENT + 3
 MENU = pygame.USEREVENT + 4
+SETTINGS = pygame.USEREVENT + 5
 class Bullets:
     def __init__(self, pos_x, pos_y,angle,time):
         img = pygame.image.load("mgbullets.png").convert_alpha()
@@ -67,33 +79,107 @@ class Fighters:
         self.xvelo = xvelo
         self.yvelo = yvelo
 
+
+
 player = Fighters(500, 500, "XO", 0, 0, (34, 50))
 enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
 
 def menu():
     click = False
+
+    button_text=[]
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 break
+            if event.type == SETTINGS:
+                settings_menu()
 
         mx, my = pygame.mouse.get_pos()
-        button1 = pygame.Rect(890, 440, 100, 50)
-        if button1.collidepoint((mx, my)):
+        Title_text = TITLE_font.render(TITLE, 1, WHITE)
+
+        play_button_text = button_font.render("PLAY", 1, WHITE)
+        play_button = pygame.Rect((width//2)-((play_button_text.get_width()+20)//2), (height//2)-((play_button_text.get_height()+20)//2), play_button_text.get_width()+20, play_button_text.get_height()+20)
+
+        Settings_button_text = button_font.render("SETTINGS", 1, WHITE)
+        Settings_button = pygame.Rect((width//2)-((Settings_button_text.get_width()+20)//2), (height//2)-((play_button_text.get_height()+20)//2)+play_button_text.get_height()+20+button_gap, Settings_button_text.get_width()+20, Settings_button_text.get_height()+20)
+
+
+        button_text.append(play_button_text)
+        button_text.append(Settings_button_text)
+
+        if play_button.collidepoint((mx, my)):
             if click:
                 break
+                #pygame.event.post(pygame.event.Event(NEXT_LEVEL))
+        elif Settings_button.collidepoint((mx, my)):
+            if click:
+               pygame.event.post(pygame.event.Event(SETTINGS))
 
         click = False
         if pygame.mouse.get_pressed()[0]:
             click = True
 
 
-        menu_draw(button1)
+        menu_draw(button_text,Title_text,play_button,Settings_button)
 
-def menu_draw(button1):
-    pygame.draw.rect(screen, WHITE, button1)
+def menu_draw(button_text,Title_text,*args):
+    buttons = list(args)
+    screen.blit(stars,(0,0))
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i],3,1)
+        screen.blit(button_text[i],(buttons[i].x+buttons[i].width//2-button_text[i].get_width()//2,buttons[i].y+buttons[i].height//2-button_text[i].get_height()//2))
+    screen.blit(Title_text,(width//2-Title_text.get_width()//2,height//5))
+
     pygame.display.update()
 
+def settings_menu():
+    click = False
+
+    button_text = []
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                break
+            if event.type == MENU:
+                menu()
+
+        mx, my = pygame.mouse.get_pos()
+
+        #add buttons and shi
+        '''
+        button_text.append(play_button_text)
+        button_text.append(Settings_button_text)
+
+        if play_button.collidepoint((mx, my)):
+            if click:
+                break
+                # pygame.event.post(pygame.event.Event(NEXT_LEVEL))
+        elif Settings_button.collidepoint((mx, my)): # make this x button or save
+            if click:
+                pygame.event.post(pygame.event.Event(MENU))
+
+        click = False
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+'''
+        settings_menu_draw(button_text )
+
+
+def settings_menu_draw(button_text, *args):
+    buttons = list(args)
+    screen.blit(stars, (0, 0))
+    pygame.draw.rect(screen,BLACK, (100,100,width-200,height-200))
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
+        screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2,buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
+
+
+    pygame.display.update()
 
 def player_movement(keys, player):
 
