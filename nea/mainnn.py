@@ -93,15 +93,119 @@ player = Fighters(500, 500, "XO", 0, 0, (34, 50))
 enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
 
 def login_menu():
-	pass
-def login_menu_draw():
-	pass
-def signup_menu():
-	pass
-def signup_menu_draw():
-	pass
+	click = False
 
-def login_signup_menu():
+    button_text = []
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                break
+            if event.type == MENU:
+                menu()
+            
+
+        mx, my = pygame.mouse.get_pos()
+
+	log_in_text = TITLE_font.render(“Log In”, 1, WHITE)
+
+	login_button_text = button_font.render("Login", 1, WHITE)
+        login_button = pygame.Rect()
+
+        back_button_text = button_font.render("Back", 1, WHITE)
+        back_button = pygame.Rect()
+
+        
+        button_text.append(login_button_text )
+        button_text.append( back_button_text)
+
+         
+         
+
+        if login_button .collidepoint((mx, my)):
+            if click:
+                pygame.event.post(pygame.event.Event(MENU))
+        elif  back_button. collidepoint((mx, my)):
+            if click:
+                break
+
+        click = False
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+        
+	login_menu_draw(button_text, log_ in_text , login_button,back_button )
+
+def login_menu_draw(button_text, sign_ in_text ,*args):
+    buttons = list(args)
+    screen.blit(stars,(0,0))
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i],3,1)
+        screen.blit(screen.blit(button_text[i],(buttons[i].x+buttons[i].width//2-button_text[i].get_width()//2,buttons[i].y+buttons[i].height//2-button_text[i].get_height()//2)))
+    screen.blit(sign_up_text,(width//2-sign_up_text.get_width()//2,height//5))
+     
+   
+
+    pygame.display.update()
+
+def signup_menu():
+    click = False
+
+    button_text = []
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                break
+            if event.type == MENU:
+                menu()
+            
+
+        mx, my = pygame.mouse.get_pos()
+
+    	sign_ up_text = TITLE_font.render(“Sign Up”, 1, WHITE)
+    
+    	signup_button_text = button_font.render("Sign Up", 1, WHITE)
+        signup_button = pygame.Rect()
+    
+        back_button_text = button_font.render("Back", 1, WHITE)
+        back_button = pygame.Rect()
+    
+            
+        button_text.append(signup_button_text )
+        button_text.append( back_button_text)
+    
+             
+             
+    
+        if signup_button .collidepoint((mx, my)):
+            if click:
+                pygame.event.post(pygame.event.Event(MENU))
+        elif  back_button. collidepoint((mx, my)):
+                if click:
+                   break
+    
+        click = False
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+            
+    	signup_menu_draw(button_text, sign_ up_text , signup_button,back_button )
+    
+
+def signup_menu_draw(button_text, sign_ up_text,*args):
+    buttons = list(args)
+    screen.blit(stars,(0,0))
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i],3,1)
+        screen.blit(screen.blit(button_text[i],(buttons[i].x+buttons[i].width//2-button_text[i].get_width()//2,buttons[i].y+buttons[i].height//2-button_text[i].get_height()//2)))
+     screen.blit(sign_up_text,(width//2-sign_up_text.get_width()//2,height//5))
+   
+
+    pygame.display.update()
+
+
+ def login_signup_menu():
     click = False
 
     button_text = []
@@ -138,7 +242,7 @@ def login_signup_menu():
 
         click = False
         if pygame.mouse.get_pressed()[0]:
-            click = True
+        click = True
         
 	login_signup_menu_draw(button_text,Title_text,login_button,sign_up_button  )
 
