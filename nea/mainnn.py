@@ -1,3 +1,5 @@
+import pip
+pip.main(["install", "--user", "Pygame"])
 import pygame
 import math
 import time
@@ -84,6 +86,52 @@ class Fighters:
 player = Fighters(500, 500, "XO", 0, 0, (34, 50))
 enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
 
+def login_signup_menu():
+    click = False
+
+    button_text = []
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                break
+            if event.type == MENU:
+                menu()
+
+        mx, my = pygame.mouse.get_pos()
+
+        # add buttons and shi
+        '''
+        button_text.append(play_button_text)
+        button_text.append(Settings_button_text)
+
+        if play_button.collidepoint((mx, my)):
+            if click:
+                break
+                # pygame.event.post(pygame.event.Event(NEXT_LEVEL))
+        elif Settings_button.collidepoint((mx, my)): # make this x button or save
+            if click:
+                pygame.event.post(pygame.event.Event(MENU))
+
+        click = False
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+'''
+        login_signup_menu_draw(button_text)
+
+
+def login_signup_menu_draw(button_text, *args):
+    buttons = list(args)
+    screen.blit(stars, (0, 0))
+    pygame.draw.rect(screen, BLACK, (100, 100, width - 200, height - 200))
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
+        screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2,
+                                     buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
+
+    pygame.display.update()
+
 def menu():
     click = False
 
@@ -144,28 +192,32 @@ def settings_menu():
             if event.type == pygame.QUIT:
                 break
             if event.type == MENU:
-                menu()
+                break
 
         mx, my = pygame.mouse.get_pos()
 
-        #add buttons and shi
-        '''
-        button_text.append(play_button_text)
-        button_text.append(Settings_button_text)
+        x_button_text = button_font.render("X", 1, WHITE)
+        x_button = pygame.Rect(width-100-(x_button_text.get_width()+20),100,x_button_text.get_width()+20,x_button_text.get_height()+20)
 
-        if play_button.collidepoint((mx, my)):
+        #add buttons and shi
+
+        button_text.append(x_button_text)
+
+
+        if x_button.collidepoint((mx, my)):
             if click:
                 break
                 # pygame.event.post(pygame.event.Event(NEXT_LEVEL))
-        elif Settings_button.collidepoint((mx, my)): # make this x button or save
+        '''
+        elif save_button.collidepoint((mx, my)): # make this x button or save
             if click:
                 pygame.event.post(pygame.event.Event(MENU))
-
+        '''
         click = False
         if pygame.mouse.get_pressed()[0]:
             click = True
-'''
-        settings_menu_draw(button_text )
+
+        settings_menu_draw(button_text,x_button )
 
 
 def settings_menu_draw(button_text, *args):
