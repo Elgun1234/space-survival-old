@@ -53,6 +53,12 @@ NEXT_LEVEL = pygame.USEREVENT + 2
 HIT = pygame.USEREVENT + 3
 MENU = pygame.USEREVENT + 4
 SETTINGS = pygame.USEREVENT + 5
+LOGIN = pygame.USEREVENT + 6
+SIGNUP = pygame.USEREVENT + 7
+START = pygame.USEREVENT + 8
+
+
+
 class Bullets:
     def __init__(self, pos_x, pos_y,angle,time):
         img = pygame.image.load("mgbullets.png").convert_alpha()
@@ -86,6 +92,15 @@ class Fighters:
 player = Fighters(500, 500, "XO", 0, 0, (34, 50))
 enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
 
+def login_menu():
+	pass
+def login_menu_draw():
+	pass
+def signup_menu():
+	pass
+def signup_menu_draw():
+	pass
+
 def login_signup_menu():
     click = False
 
@@ -94,35 +109,44 @@ def login_signup_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 break
-            if event.type == MENU:
-                menu()
+            if event.type == LOGIN:
+                login_menu()
+            if event.type == SIGNUP:
+                sign_up_menu()
 
         mx, my = pygame.mouse.get_pos()
 
-        # add buttons and shi
-        '''
-        button_text.append(play_button_text)
-        button_text.append(Settings_button_text)
+	Title_text = TITLE_font.render(TITLE, 1, WHITE)
 
-        if play_button.collidepoint((mx, my)):
+	login_button_text = button_font.render("Login", 1, WHITE)
+        login_button = pygame.Rect((width//2)-((login_button_text.get_width()+20)//2), (height//2)-((login_button_text.get_height()+20)//2), login_button_text.get_width()+20, login_button_text.get_height()+20)
+	
+	sign_up_button_text = button_font.render("Sign Up", 1, WHITE)
+        sign_up_button = pygame.Rect((width//2)-((sign_up_button_text.get_width()+20)//2), (height//2)-((login_button_text.get_height()+20)//2)+sign_up_button_text.get_height()+20+button_gap, sign_up_button_text.get_width()+20, sign_up_button_text.get_height()+20)
+
+
+        
+        button_text.append(login_button_text )
+        button_text.append(sign_up_button_text )
+
+        if login_button .collidepoint((mx, my)):
             if click:
-                break
-                # pygame.event.post(pygame.event.Event(NEXT_LEVEL))
-        elif Settings_button.collidepoint((mx, my)): # make this x button or save
+                pygame.event.post(pygame.event.Event(LOGIN))
+        elif  sign_up_button.collidepoint((mx, my)): 
             if click:
-                pygame.event.post(pygame.event.Event(MENU))
+                pygame.event.post(pygame.event.Event(SIGNUP))
 
         click = False
         if pygame.mouse.get_pressed()[0]:
             click = True
-'''
-        login_signup_menu_draw(button_text)
+        
+	login_signup_menu_draw(button_text,Title_text,login_button,sign_up_button  )
 
 
-def login_signup_menu_draw(button_text, *args):
+def login_signup_menu_draw(button_text, Title_text,*args):
     buttons = list(args)
     screen.blit(stars, (0, 0))
-    pygame.draw.rect(screen, BLACK, (100, 100, width - 200, height - 200))
+    screen.blit(Title_text,(width//2-Title_text.get_width()//2,height//5))
     for i in range(len(buttons)):
         if i == len(buttons):
             break
@@ -321,7 +345,7 @@ def draw(rot_image,rot_image_rect,mg_bullets,DD):
     pygame.display.update()
 def main():
     clock = pygame.time.Clock()
-    pygame.event.post(pygame.event.Event(MENU))
+    pygame.event.post(pygame.event.Event(START))
     run = True
     while run:
         clock.tick(FPS)
@@ -330,8 +354,8 @@ def main():
                 run = False
             if event.type == NEXT_LEVEL:
                 pass
-            if event.type == MENU:
-                menu()
+            if event.type == START:
+                login_signup_menu
 
         keys = pygame.key.get_pressed()
         buttons = pygame.mouse.get_pressed()
