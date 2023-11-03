@@ -5,9 +5,12 @@ con = sqlite3.connect("users.db")
 cur = con.cursor()
 cur.execute("CREATE TABLE Accounts(User_ID, Usernames, Passwords, Date_Created,settings,highest_score)")
 
-def check_details(received_data):
-  res = cur.execute(f"SELECT Usernames FROM Accounts WHERE {received_data}")
+def check_user_pass(received_data):
+  res = cur.execute(f"SELECT Usernames FROM Accounts WHERE {received_data}")# check if pass and user of same entity matches recirved data
   return res
+
+def add_data(received_data):
+  
   
   
 
@@ -34,10 +37,14 @@ while True:
   data = client_socket.recv(1024)  # Receive up to 1024 bytes of data
   received_data = data.decode('utf-8')
 
-  if check_details(received_data):
-    c.send('False'.encode())
-  else:
-    c.send('True'.encode())
+  if received_data[2]=="login":
+    if check_user_pass(received_data):
+      c.send('True'.encode())
+    else:
+      c.send('False'.encode())
+  if received_data[2]=="signup":
+      
+  
 
   #check/add
  
