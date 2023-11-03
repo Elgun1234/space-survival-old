@@ -182,6 +182,7 @@ def login_menu():
                     received_data = data.decode('utf-8')
                     s.close()
                     if received_data=="True":
+                        print("received")
                         pygame.event.post(pygame.event.Event(MENU))
                         logged_username = username
                     else:
@@ -328,6 +329,7 @@ def signup_menu():
                         received_data = data.decode('utf-8')
                         s.close()
                         if received_data=="False":
+                            print("received")
                             pygame.event.post(pygame.event.Event(MENU))
                             logged_username=username
                         else:
@@ -627,10 +629,17 @@ def settings_menu():
             if reset_config_button.collidepoint((mx, my)):
                 apply_config(default_config)
             if save_config_button.collidepoint((mx, my)):
-                s.connect(server_address)
-                data = pickle.dumps(["config",logged_username,config])
-                s.send(data)
-                s.close()
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.connect(server_address)
+                    data = pickle.dumps(["config",logged_username,config])
+                    s.send(data)
+                    data = s.recv(1024)
+                    if data == "True":
+                        print("received")
+                    s.close()
+                except:
+                    pass
 
             if Window_Size_1_button.collidepoint((mx, my)):
                 width=1920
