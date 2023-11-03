@@ -1,9 +1,12 @@
 import socket
 import sqlite3
+from datetime import datetime 
 
 con = sqlite3.connect("users.db")
 cur = con.cursor()
 cur.execute("CREATE TABLE Accounts(User_ID, Usernames, Passwords, Date_Created,settings,highest_score)")
+
+number_of_accounts = cur.execute("SELECT COUNT(*) FROM Accounts")
 
 def check_user_pass(received_data):
   res = cur.execute(f"SELECT Usernames FROM Accounts WHERE {received_data}")# check if pass and user of same entity matches recirved data
@@ -13,7 +16,9 @@ def add_data(received_data):
   if cur.execute(f"SELECT Usernames FROM Accounts WHERE {received_data[0]}") :
     return True
   else:
-    cur.execute(f"INSERT INTO Accounts ('','{received_data[0]}'))
+    cur.execute(f"INSERT INTO Accounts ('{number_of_accounts+1}','{received_data[0]}','{received_data[1]}','{datetime.now()}')")#received_data[2] is login or signup received_data[3] 456 is rest
+    con.commit()
+    return 1
     
 
 s = socket.socket()         
@@ -48,10 +53,8 @@ while True:
     x=  add_data(received_data)
     if x:
       c.send('False'.encode())
-      
-  
-
-  #check/add
+    if x==1:
+      c.send('True'.encode())
  
   # Close the connection with the client 
   c.close()
