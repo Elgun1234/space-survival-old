@@ -75,6 +75,7 @@ while True:
             sock.close()
     if received_data[0]=="config":
         update_config(received_data)
+        sock.send("True".encode())
         sock.close()
 
 
