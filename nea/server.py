@@ -10,9 +10,11 @@ def check_user_pass(received_data):
   return res
 
 def add_data(received_data):
-  
-  
-  
+  if cur.execute(f"SELECT Usernames FROM Accounts WHERE {received_data[0]}") :
+    return True
+  else:
+    cur.execute(f"INSERT INTO Accounts ('','{received_data[0]}'))
+    
 
 s = socket.socket()         
 print ("Socket successfully created")
@@ -43,6 +45,9 @@ while True:
     else:
       c.send('False'.encode())
   if received_data[2]=="signup":
+    x=  add_data(received_data)
+    if x:
+      c.send('False'.encode())
       
   
 
