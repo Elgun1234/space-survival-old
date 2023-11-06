@@ -146,6 +146,8 @@ def login_menu():
                         if password_input_box_text.get_width()<400:
                             password_dots += "•"
                             password+=event.unicode
+                if event.type == START:
+                    break
 
 
         mx, my = pygame.mouse.get_pos()
@@ -312,6 +314,8 @@ def signup_menu():
                         if confirm_password_input_box_text.get_width() < 400:
                             confirm_password += event.unicode
                             confirm_password_dots += "•"
+            elif event.type == START:
+                break
 
 
         mx, my = pygame.mouse.get_pos()
@@ -415,7 +419,8 @@ def signup_menu_draw(button_text, sign_up_text,username_input_box,username_input
 
 def login_signup_menu():
     click = False
-
+    global logged_username
+    logged_username=""
     button_text = []
     while True:
         for event in pygame.event.get():
@@ -468,16 +473,23 @@ def login_signup_menu_draw(button_text, Title_text, *args):
     pygame.display.update()
 
 def menu():
-    global logged_username
-    logged_username=""
     click = False
 
     button_text = []
     while True:
         if pygame.mouse.get_pressed()[0]:
             click = True
-
-
+        try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.connect(server_address)
+                    data = pickle.dumps(["fetch",logged_username])
+                    s.send(data)
+                    data = s.recv(1024)
+                    
+                    s.close()
+                except:
+                    pass
+        
 
 
         mx, my = pygame.mouse.get_pos()
@@ -489,8 +501,14 @@ def menu():
         Settings_button_text = button_font.render("SETTINGS", 1, WHITE)
         Settings_button = pygame.Rect((width // 2) - ((Settings_button_text.get_width() + 20) // 2),(height // 2) - ((play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30,Settings_button_text.get_width() + 20,Settings_button_text.get_height() + 20)
 
+        Signout_button_text = button_font.render("Sign Out", 1, WHITE)
+        Signout_button = pygame.Rect(width-Signout_button_text.get_width()-20,height-Signout_button_text.get_height()-20,Signout_button_text.get_width()+20,Signout_button_text.get_height()+20)
+
+        account_text = button_font.render(f"Username: {logged_username} , ", 1, WHITE)# fetch date creted to make hrs palyed and fetch highest score
+        
         button_text.append(play_button_text)
         button_text.append(Settings_button_text)
+        button_text.append(Signout_button_text)
 
         if play_button.collidepoint((mx, my)):
             if click:
@@ -499,7 +517,9 @@ def menu():
         elif Settings_button.collidepoint((mx, my)):
             if click:
                 pygame.event.post(pygame.event.Event(SETTINGS))
-
+        elif Signout_button.collidepoint((mx, my)):
+            if click:
+                pygame.event.post(pygame.event.Event(START))
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -508,7 +528,8 @@ def menu():
                 settings_menu()
             if event.type == PLAY:
                 main(PLAY)
-
+            if event.type == START:
+                break
         click = False
 
 
