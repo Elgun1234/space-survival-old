@@ -228,6 +228,29 @@ def login_menu_draw(button_text, log_in_text,username_input_box, username_input_
 
     pygame.display.update()
 
+def signup_validation(username,password,confirm_password):
+    numbers = ["1","2","3","4","5","6","7","8","9","0",]
+    if password!="":
+        if confirm_password!="":
+            if username !="":
+                if len(password)>5:
+                    if any(i in password for i in numbers):
+                        if password == confirm_password:
+                            return True
+                        else:
+                            return False
+                    else:
+                        return False
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False
+                
+                    
 
 def signup_menu():
     global logged_username
@@ -319,7 +342,7 @@ def signup_menu():
 
         if click:
             if signup_button.collidepoint((mx, my)):
-                if password==confirm_password and username!="" and password!="":
+                if signup_validation(username,password,confirm_password):
                     try:
                         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         s.connect(server_address)
@@ -445,6 +468,8 @@ def login_signup_menu_draw(button_text, Title_text, *args):
     pygame.display.update()
 
 def menu():
+    global logged_username
+    logged_username=""
     click = False
 
     button_text = []
