@@ -5,7 +5,7 @@ import pickle
 
 con = sqlite3.connect("users.db")
 cur = con.cursor()
-#cur.execute("CREATE TABLE Accounts(Username, Password, Date_Created,settings,highest_score)")
+#cur.execute("CREATE TABLE Accounts(Username, Password, hours_played,settings,highest_score)")
 
 
 
@@ -24,12 +24,16 @@ def check_user(received_data):
         return True
 
 def add_data(received_data):
-        cur.execute("INSERT INTO Accounts (Username, Password, Date_Created,settings,highest_score) VALUES (?,?,?,?,?)",(received_data[1],received_data[2],datetime.now(),received_data[3],received_data[4]))  # received_data[2] is login or signup received_data[3] 456 is rest
+        cur.execute("INSERT INTO Accounts (Username, Password, hours_played,settings,highest_score) VALUES (?,?,?,?,?)",(received_data[1],received_data[2],0,received_data[3],received_data[4]))  # received_data[2] is login or signup received_data[3] 456 is rest
         con.commit()
-
+def update_hours(received_data):
+    cur.execute("UPDATE Accounts SET settings = ? WHERE Username = ?", (received_data[2], received_data[1]))
+    con.commit()
 
 def update_config(received_data):
-    cur.execute("UPDATE users SET settings = ? WHERE Username = ?", (received_data[2], received_data[1]))
+    cur.execute("SELECT hours_played FROM Accounts WHERE Username=?",received_data[1])
+    hours = cur.fetchone()
+    cur.execute("UPDATE Accounts SET hours_played = ? WHERE Username = ?", (received_data[2]+hours, received_data[1]))
     con.commit()
 
 
