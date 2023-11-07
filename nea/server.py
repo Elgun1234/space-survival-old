@@ -1,12 +1,14 @@
 import socket
 import sqlite3
-from datetime import datetime
+
 import pickle
 
 con = sqlite3.connect("users.db")
 cur = con.cursor()
-#cur.execute("CREATE TABLE Accounts(Username, Password, hours_played,settings,highest_score)")
-
+try:
+    cur.execute("CREATE TABLE Accounts(Username, Password, hours_played,settings,highest_score)")
+except:
+    pass
 
 
 def check_user_pass(received_data):
@@ -17,23 +19,36 @@ def check_user_pass(received_data):
         return True
 
 def check_user(received_data):
-    cur.execute("SELECT Username FROM Accounts WHERE Username=?",received_data[1])
+    cur.execute("SELECT Username FROM Accounts WHERE Username=?",(received_data[1],))
     if cur.fetchone() == None:
         return False
     else:
         return True
 
 def add_data(received_data):
-        cur.execute("INSERT INTO Accounts (Username, Password, hours_played,settings,highest_score) VALUES (?,?,?,?,?)",(received_data[1],received_data[2],0,received_data[3],received_data[4]))  # received_data[2] is login or signup received_data[3] 456 is rest
+        cur.execute("INSERT INTO Accounts (Username, Password, hours_played,settings,highest_score) VALUES (?,?,?,?,?)",(received_data[1],received_data[2],[0,0,0],received_data[3],received_data[4]))  # received_data[2] is login or signup received_data[3] 456 is rest
         con.commit()
-def update_hours(received_data):
+def update_config(received_data):
     cur.execute("UPDATE Accounts SET settings = ? WHERE Username = ?", (received_data[2], received_data[1]))
     con.commit()
 
-def update_config(received_data):
-    cur.execute("SELECT hours_played FROM Accounts WHERE Username=?",received_data[1])
+def fetch_hours(received_data):
+    cur.execute("SELECT hours_played FROM Accounts WHERE Username=?", (received_data[1],))
     hours = cur.fetchone()
-    cur.execute("UPDATE Accounts SET hours_played = ? WHERE Username = ?", (received_data[2]+hours, received_data[1]))
+    return hours
+def update_hours(received_data):
+    cur.execute("SELECT hours_played FROM Accounts WHERE Username=?",(received_data[1],))
+    hours = cur.fetchone()
+    if (hours[2]+5)//60>=1:
+        hours[1]+=(hours[2]+5)//60
+        hours[2]=0
+    else:
+        hours[2] += 5
+    if hours[1] // 60 >= 1:
+        hours[0] += hours[1] // 60
+        hours[1] = 0
+
+    cur.execute("UPDATE Accounts SET hours_played = ? WHERE Username = ?", (hours, received_data[1]))
     con.commit()
 
 
@@ -41,8 +56,7 @@ def update_config(received_data):
 s = socket.socket()
 print("Socket successfully created")
 
-port = 2000  # can be anything
-
+port = 3000  # can be anything
 s.bind(("0.0.0.0", port))
 print(f"socket binded to {port}")
 
@@ -61,6 +75,7 @@ while True:
     received_data = pickle.loads(data)
 
     if received_data[0] == "login":
+        print("login")
         if check_user_pass(received_data):
             sock.send("True".encode())
             sock.close()
@@ -69,19 +84,28 @@ while True:
             sock.close()
 
     if received_data[0] == "signup":
+        print("signup")
         if check_user(received_data):
             sock.send("False".encode())
             sock.close()
 
         else:
             add_data(received_data)
+            print("added data")
             sock.send("True".encode())
             sock.close()
+            print("closed")
     if received_data[0]=="config":
+        print("config")
         update_config(received_data)
         sock.send("True".encode())
         sock.close()
-
-
-
-
+    if received_data[0]=="hours":
+        print("hours")
+        update_hours(received_data)
+        sock.send("True".encode())
+        sock.close()
+    if received_data[0]=="fetch":
+        print("fetch")
+        sock.send(str(fetch_hours(received_data)[0]).encode())
+        sock.close()
