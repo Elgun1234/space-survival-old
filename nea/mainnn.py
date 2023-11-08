@@ -921,11 +921,13 @@ def main():
     x=0
     while run:
         clock.tick(FPS)
+        x+=1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        if x ==300:
+        if x ==300:#5 secs
+            x=0
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(server_address)
