@@ -26,7 +26,7 @@ def check_user(received_data):
         return True
 
 def add_data(received_data):
-        cur.execute("INSERT INTO Accounts (Username, Password, hours_played,settings,highest_score) VALUES (?,?,?,?,?)",(received_data[1],received_data[2],[0,0,0],received_data[3],received_data[4]))  # received_data[2] is login or signup received_data[3] 456 is rest
+        cur.execute("INSERT INTO Accounts (Username, Password, hours_played,settings,highest_score) VALUES (?,?,?,?,?)",(received_data[1],received_data[2],[0,0],received_data[3],received_data[4]))  # received_data[2] is login or signup received_data[3] 456 is rest
         con.commit()
 def update_config(received_data):
     cur.execute("UPDATE Accounts SET settings = ? WHERE Username = ?", (received_data[2], received_data[1]))
@@ -39,12 +39,8 @@ def fetch_hours(received_data):
 def update_hours(received_data):
     cur.execute("SELECT hours_played FROM Accounts WHERE Username=?",(received_data[1],))
     hours = cur.fetchone()
-    if (hours[2]+5)//60>=1:
-        hours[1]+=(hours[2]+5)//60
-        hours[2]=0
-    else:
-        hours[2] += 5
-    if hours[1] // 60 >= 1:
+    hours[1]+=1
+    if hours[1] // 60 == 1:
         hours[0] += hours[1] // 60
         hours[1] = 0
 
@@ -103,7 +99,6 @@ while True:
     if received_data[0]=="hours":
         print("hours")
         update_hours(received_data)
-        sock.send("True".encode())
         sock.close()
     if received_data[0]=="fetch":
         print("fetch")
