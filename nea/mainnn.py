@@ -926,7 +926,7 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        if x ==300:#5 secs
+        if x ==3600:#1 min
             x=0
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
