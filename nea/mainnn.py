@@ -199,7 +199,8 @@ def login_menu():
                 except:
                     pass
             elif back_button.collidepoint((mx, my)):
-                break
+                running = False
+                EVENT = "START"
             elif username_input_box.collidepoint((mx, my)):
                 username_collection = True
                 password_collection = False
@@ -384,7 +385,8 @@ def signup_menu():
                 else:
                     not_match_passwords_text = result[1]
             elif back_button.collidepoint((mx, my)):
-                break
+                running = False
+                EVENT = "START"
             elif username_input_box.collidepoint((mx, my)):
                 username_collection = True
                 password_collection = False
