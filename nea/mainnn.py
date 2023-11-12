@@ -9,7 +9,7 @@ import pickle
 import datetime
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ("127.0.0.1", 3000)
+server_address = ("127.0.0.1", 3100)
 
 pygame.font.init()
 
@@ -27,7 +27,7 @@ down_key = pygame.K_s
 right_key = pygame.K_d
 left_key = pygame.K_a
 
-default_config = "2,119,97,115,100"
+config = "2,119,97,115,100"
 
 stars = pygame.image.load("star_sky.jpg")
 stars = pygame.transform.scale(stars, (width, height))
@@ -156,7 +156,7 @@ def login_menu():
             menu()
         if EVENT == "PLAY":
             running = False
-        print(EVENT)
+
 
         mx, my = pygame.mouse.get_pos()
 
@@ -187,13 +187,17 @@ def login_menu():
                     s.connect(server_address)
                     data = pickle.dumps(["login", username, password])
                     s.send(data)
-                    data = s.recv(1024)  # Receive up to 1024 bytes of data
-                    received_data = data.decode('utf-8')
+                    data = s.recv(2000)  # Receive up to 1024 bytes of data
+                    received_data = pickle.loads(data)
                     s.close()
-                    if received_data == "True":
-                        print("received")
+                    if received_data[0] == "True":
+                        print(received_data)
+                        #print("received")
                         EVENT = "MENU"
                         logged_username = username
+                        apply_config(received_data[1])
+                        config = received_data[1]
+
                     else:
                         wrong_userpass_text = detail_font.render("Wrong user or pass", 1, RED)
                 except:
@@ -366,7 +370,7 @@ def signup_menu():
                         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         s.connect(server_address)
                         print("connected")
-                        data = pickle.dumps(["signup", username, password, default_config, 0])
+                        data = pickle.dumps(["signup", username, password, config, 0])
                         s.send(data)
                         print("sent")
                         data = s.recv(1024)  # Receive up to 1024 bytes of data
@@ -586,6 +590,7 @@ def menu_draw(button_text, Title_text,account_text, *args):
 
 def apply_config(config):
     global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key
+    print(config)
     choices = config.split(",")
     if choices[0] == "1":
         width = 1920
@@ -618,14 +623,14 @@ def apply_config(config):
 
 
 def settings_menu():
-    global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key,EVENT
+    global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key,EVENT,config
     up_key_collection = False
     left_key_collection = False
     down_key_collection = False
     right_key_collection = False
     click = False
     button_text = []
-    config = "2,119,97,115,100"
+
     running = True
     while running:
         for event in pygame.event.get():
@@ -642,19 +647,19 @@ def settings_menu():
                     left_key = event.key
                     left_key_collection = False
                     config = config.split(",")
-                    config[1] = str(left_key)
+                    config[2] = str(left_key)
                     config = ",".join(config)
                 if down_key_collection:
                     down_key = event.key
                     down_key_collection = False
                     config = config.split(",")
-                    config[1] = str(down_key)
+                    config[3] = str(down_key)
                     config = ",".join(config)
                 if right_key_collection:
                     right_key = event.key
                     right_key_collection = False
                     config = config.split(",")
-                    config[1] = str(right_key)
+                    config[4] = str(right_key)
                     config = ",".join(config)
 
         mx, my = pygame.mouse.get_pos()
@@ -709,7 +714,7 @@ def settings_menu():
                 running = False
                 EVENT=""
             if reset_config_button.collidepoint((mx, my)):
-                apply_config(default_config)
+                apply_config("2,119,97,115,100")
             if save_config_button.collidepoint((mx, my)):
                 try:
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -720,6 +725,7 @@ def settings_menu():
                     received_data = data.decode('utf-8')
                     if received_data == "True":
                         print("received")
+                        print(config)
                     s.close()
                 except:
                     pass
