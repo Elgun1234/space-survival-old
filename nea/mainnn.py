@@ -715,6 +715,7 @@ def settings_menu():
                 EVENT=""
             if reset_config_button.collidepoint((mx, my)):
                 apply_config("2,119,97,115,100")
+                config = "2,119,97,115,100"
             if save_config_button.collidepoint((mx, my)):
                 try:
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
