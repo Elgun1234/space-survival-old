@@ -77,8 +77,9 @@ class Bullets:
     def __init__(self, pos_x, pos_y, angle, time):
         img = pygame.image.load("mgbullets.png").convert_alpha()
         self.image = pygame.transform.rotate(img, angle)
-        self.x = pos_x
-        self.y = pos_y
+        self.rect = self.image.get_rect()
+        self.rect.x = pos_x
+        self.rect.y = pos_y
         self.time = time
 
         self.angle = angle + 90
@@ -95,10 +96,11 @@ class Bullets:
 
 class Fighters:
     def __init__(self, center_x, center_y, png, xvelo, yvelo, size):
-        self.center_x = center_x
-        self.center_y = center_y
         self.img = pygame.image.load(f"{png}.png").convert_alpha()
         self.img = pygame.transform.scale(self.img, (size))
+        self.rect = self.img.get_rect()
+        self.rect.x = center_x
+        self.rect.y = center_y
         self.xvelo = xvelo
         self.yvelo = yvelo
 
@@ -846,31 +848,31 @@ def player_movement(player):
     if keys[right_key] == False and keys[left_key] == False:
         player.xvelo = player.xvelo * friction
 
-    player.center_y += player.yvelo
-    player.center_x += player.xvelo
+    player.rect.y += player.yvelo
+    player.rect.x += player.xvelo
 
 
 def keep_on_screeen(player):
-    if player.center_x - 25 > width:
-        player.center_x -= (25 + width)
-    if player.center_x + 25 < 0:
-        player.center_x += width
-    if player.center_y + 25 >= height:
-        player.center_y = height - 25
-    if player.center_y - 25 <= 0:
-        player.center_y = 25
+    if player.rect.x - 25 > width:
+        player.rect.x -= (25 + width)
+    if player.rect.x + 25 < 0:
+        player.rect.x += width
+    if player.rect.y + 25 >= height:
+        player.rect.y = height - 25
+    if player.rect.y - 25 <= 0:
+        player.rect.y = 25
 
 
 def shooting(mg_bullets, angle):
     buttons = pygame.mouse.get_pressed()
     if buttons[0]:
-        mg_bullets.append(Bullets(player.center_x, player.center_y, angle, time.time()))
+        mg_bullets.append(Bullets(player.rect.x, player.rect.y, angle, time.time()))
 
 
 def bullet_stuff(mg_bullets):
     global DD, time_last_damaged, EVENT
     for i in mg_bullets:
-        if i.x < enemy.center_x + 25 and i.x > enemy.center_x - 45 and i.y < enemy.center_y + 25 and i.y > enemy.center_y - 45:
+        if i.rect.colliderect(enemy.rect):#i.rect.x < enemy.rect.x  + 25 and i.rect.x > enemy.rect.x  - 45 and i.rect.y < enemy.rect.y + 25 and i.rect.y > enemy.rect.y - 45:
             HIT = True
             DD += mg_dmg
             if DD >= width - 40:
@@ -880,14 +882,14 @@ def bullet_stuff(mg_bullets):
         else:
             HIT = False
 
-        i.x += i.xvelo
-        i.y += i.yvelo
-        if i.y > height or i.y < 0 or time.time() - i.time > mg_tl or HIT:
+        i.rect.x += i.xvelo
+        i.rect.y+= i.yvelo
+        if i.rect.y > height or i.rect.y < 0 or time.time() - i.time > mg_tl or HIT:
             mg_bullets.remove(i)
-        if i.x > width:
-            i.x -= width
-        if i.x < 0:
-            i.x += width
+        if i.rect.x > width:
+            i.rect.x -= width
+        if i.rect.x < 0:
+            i.rect.x += width
     if len(mg_bullets) > max_mg:
         del mg_bullets[0]
     return time_last_damaged
@@ -902,21 +904,27 @@ def regen(time_last_damaged):
                 DD -= greater_regen_amm
 
 
+def detect_bullet_collision(bullets,x,y,xspeed,yspeed):
+    for i in bullets:
+        
+        if enemy.rect.collidepoint()
+
 def draw(rot_image, rot_image_rect, mg_bullets, DD):
     screen.fill(BLACK)
 
-    screen.blit(enemy.img, (enemy.center_x - 25, enemy.center_y - 25))
+    screen.blit(enemy.img, (enemy.rect.x, enemy.rect.y))
 
     screen.blit(rot_image, rot_image_rect.topleft)
 
     for i in mg_bullets:
-        screen.blit(i.image, (i.x, i.y))
+        screen.blit(i.image, (i.rect.x, i.rect.y))
 
     pygame.draw.rect(screen, GREEN, pygame.Rect(20 + DD, 20, width - 40 - DD, 20))
 
+
     pygame.draw.rect(screen, RED, pygame.Rect(20, 20, DD, 20))
 
-    pygame.draw.circle(screen, WHITE, (player.center_x, player.center_y), 5)
+    pygame.draw.circle(screen, WHITE, (player.rect.x, player.rect.y), 5)
 
     pygame.display.update()
 
@@ -947,14 +955,14 @@ def main():
                 pass
 
 
-        enemy.center_x += 2
+        enemy.rect.x += 2
 
         mx, my = pygame.mouse.get_pos()
-        dx, dy = mx - player.center_x, my - player.center_y
+        dx, dy = mx - player.rect.x, my - player.rect.y
         angle = math.degrees(math.atan2(-dy, dx)) - 90
 
         rot_image = pygame.transform.rotate(player.img, angle)
-        rot_image_rect = rot_image.get_rect(center=(player.center_x, player.center_y))
+        rot_image_rect = rot_image.get_rect(center=(player.rect.x, player.rect.y))
 
         keep_on_screeen(player)
         keep_on_screeen(enemy)
