@@ -7,6 +7,7 @@ import time
 import socket
 import pickle
 import datetime
+import sympy as sym
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ("127.0.0.1", 3100)
@@ -71,7 +72,8 @@ SIGNUP = pygame.USEREVENT + 7
 START = pygame.USEREVENT + 8
 PLAY = pygame.USEREVENT + 9
 '''
-EVENT=""
+EVENT = ""
+
 
 class Bullets:
     def __init__(self, pos_x, pos_y, angle, time):
@@ -111,7 +113,7 @@ enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
 
 def login_menu():
     click = False
-    global EVENT,logged_username
+    global EVENT, logged_username
     password_dots = ""
     password = ""
     username = ""
@@ -159,7 +161,6 @@ def login_menu():
         if EVENT == "PLAY":
             running = False
 
-
         mx, my = pygame.mouse.get_pos()
 
         log_in_text = TITLE_font.render("Log In", 1, WHITE)
@@ -194,7 +195,7 @@ def login_menu():
                     s.close()
                     if received_data[0] == "True":
                         print(received_data)
-                        #print("received")
+                        # print("received")
                         EVENT = "MENU"
                         logged_username = username
                         apply_config(received_data[1])
@@ -254,22 +255,22 @@ def signup_validation(username, password, confirm_password):
                         if password == confirm_password:
                             return True
                         else:
-                            return False,detail_font.render("Passwords don't match", 1, RED)
+                            return False, detail_font.render("Passwords don't match", 1, RED)
                     else:
-                        return False,detail_font.render("Passwords has no numbers", 1, RED)
+                        return False, detail_font.render("Passwords has no numbers", 1, RED)
                 else:
-                    return False,detail_font.render("Password is less than 5 characters", 1, RED)
+                    return False, detail_font.render("Password is less than 5 characters", 1, RED)
             else:
 
-                return False,detail_font.render("username is empty", 1, RED)
+                return False, detail_font.render("username is empty", 1, RED)
         else:
-            return False,detail_font.render("Confirm Password is empty", 1, RED)
+            return False, detail_font.render("Confirm Password is empty", 1, RED)
     else:
-        return False,detail_font.render("Password is empty", 1, RED)
+        return False, detail_font.render("Password is empty", 1, RED)
 
 
 def signup_menu():
-    global EVENT,logged_username
+    global EVENT, logged_username
     click = False
     username = ""
     password = ""
@@ -328,7 +329,6 @@ def signup_menu():
                         if confirm_password_input_box_text.get_width() < 400:
                             confirm_password += event.unicode
                             confirm_password_dots += "•"
-
 
         if EVENT == "MENU":
             menu()
@@ -444,7 +444,7 @@ def signup_menu_draw(button_text, sign_up_text, username_input_box, username_inp
 
 def login_signup_menu():
     click = False
-    global EVENT,logged_username
+    global EVENT, logged_username
     logged_username = ""
     button_text = []
     running = True
@@ -453,8 +453,6 @@ def login_signup_menu():
 
             if event.type == pygame.QUIT:
                 pygame.quit()
-
-
 
         mx, my = pygame.mouse.get_pos()
 
@@ -483,7 +481,6 @@ def login_signup_menu():
             running = False
         if EVENT == "LOGIN":
             login_menu()
-
 
         if EVENT == "SIGNUP":
             signup_menu()
@@ -547,19 +544,18 @@ def menu():
         button_text.append(Settings_button_text)
         button_text.append(Signout_button_text)
 
-
         if click:
 
             if play_button.collidepoint((mx, my)):
 
-                EVENT="PLAY"
+                EVENT = "PLAY"
 
             elif Settings_button.collidepoint((mx, my)):
 
-                EVENT="SETTINGS"
+                EVENT = "SETTINGS"
             elif Signout_button.collidepoint((mx, my)):
 
-                EVENT="START"
+                EVENT = "START"
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -573,10 +569,10 @@ def menu():
             running = False
         click = False
 
-        menu_draw(button_text, Title_text,account_text, play_button, Settings_button,Signout_button)
+        menu_draw(button_text, Title_text, account_text, play_button, Settings_button, Signout_button)
 
 
-def menu_draw(button_text, Title_text,account_text, *args):
+def menu_draw(button_text, Title_text, account_text, *args):
     buttons = list(args)
     screen.blit(stars, (0, 0))
     for i in range(len(buttons)):
@@ -585,7 +581,7 @@ def menu_draw(button_text, Title_text,account_text, *args):
         pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
         screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2, buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
     screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, height // 5))
-    screen.blit(account_text,(width - button_text[2].get_width() - 20-account_text.get_width(),height-account_text.get_height()))
+    screen.blit(account_text, (width - button_text[2].get_width() - 20 - account_text.get_width(), height - account_text.get_height()))
 
     pygame.display.update()
 
@@ -625,7 +621,7 @@ def apply_config(config):
 
 
 def settings_menu():
-    global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key,EVENT,config
+    global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key, EVENT, config
     up_key_collection = False
     left_key_collection = False
     down_key_collection = False
@@ -714,7 +710,7 @@ def settings_menu():
         if click:
             if x_button.collidepoint((mx, my)):
                 running = False
-                EVENT=""
+                EVENT = ""
             if reset_config_button.collidepoint((mx, my)):
                 apply_config("2,119,97,115,100")
                 config = "2,119,97,115,100"
@@ -872,18 +868,18 @@ def shooting(mg_bullets, angle):
 def bullet_stuff(mg_bullets):
     global DD, time_last_damaged, EVENT
     for i in mg_bullets:
-        if i.rect.colliderect(enemy.rect):#i.rect.x < enemy.rect.x  + 25 and i.rect.x > enemy.rect.x  - 45 and i.rect.y < enemy.rect.y + 25 and i.rect.y > enemy.rect.y - 45:
+        if i.rect.colliderect(enemy.rect):  # i.rect.x < enemy.rect.x  + 25 and i.rect.x > enemy.rect.x  - 45 and i.rect.y < enemy.rect.y + 25 and i.rect.y > enemy.rect.y - 45:
             HIT = True
             DD += mg_dmg
             if DD >= width - 40:
                 DD = width - 40
-                EVENT="NEXTLEVEL"
+                EVENT = "NEXTLEVEL"
             time_last_damaged = time.time()
         else:
             HIT = False
 
         i.rect.x += i.xvelo
-        i.rect.y+= i.yvelo
+        i.rect.y += i.yvelo
         if i.rect.y > height or i.rect.y < 0 or time.time() - i.time > mg_tl or HIT:
             mg_bullets.remove(i)
         if i.rect.x > width:
@@ -902,12 +898,42 @@ def regen(time_last_damaged):
             DD -= regen_amm
             if time.time() - time_last_damaged > greater_regen_time:
                 DD -= greater_regen_amm
+def silly(e):
+    return e[1]
 
-
-def detect_bullet_collision(bullets,x,y,xspeed,yspeed):
+def detect_bullet_collision(bullets, x, y, xspeed, yspeed):
+    a= sym.symbols('a')
+    bullets_on_target =[]
+    mean = 0
     for i in bullets:
-        
-        if enemy.rect.collidepoint()
+        eq1 = sym.Eq(i.rect.x + a * i.xvelo , x)
+        eq2 = sym.Eq(i.rect.y + a * i.yvelo , y)
+        result = sym.solve([eq1, eq2], (a))
+
+        #sort out if bullet past target a becomes neg and says on target
+
+        if result != []:
+            bullets_on_target.append((i,a))
+            bullets_on_target.sort(reverse=False,key=silly)
+    for i in bullets_on_target:
+        mean += i[1]
+    mean = mean//len(bullets_on_target)
+    #up
+
+    #left
+
+    #down
+
+    #right
+
+    #nothing7
+
+    if best_move == [] or best_move[0]<mean:
+        best_move=[]+path
+    if
+
+
+
 
 def draw(rot_image, rot_image_rect, mg_bullets, DD):
     screen.fill(BLACK)
@@ -920,7 +946,6 @@ def draw(rot_image, rot_image_rect, mg_bullets, DD):
         screen.blit(i.image, (i.rect.x, i.rect.y))
 
     pygame.draw.rect(screen, GREEN, pygame.Rect(20 + DD, 20, width - 40 - DD, 20))
-
 
     pygame.draw.rect(screen, RED, pygame.Rect(20, 20, DD, 20))
 
@@ -935,16 +960,16 @@ def main():
     login_signup_menu()
     run = True
 
-    x=0
+    x = 0
     while run:
         clock.tick(FPS)
-        x+=1
+        x += 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        if x ==3600:#1 min
-            x=0
+        if x == 3600:  # 1 min
+            x = 0
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(server_address)
@@ -953,7 +978,6 @@ def main():
                 s.close()
             except:
                 pass
-
 
         enemy.rect.x += 2
 
