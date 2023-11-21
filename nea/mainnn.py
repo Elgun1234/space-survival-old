@@ -7,7 +7,7 @@ import time
 import socket
 import pickle
 import datetime
-import sympy as sym
+#import sympy as sym
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ("127.0.0.1", 3100)
@@ -41,7 +41,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (170, 255, 0)
 
-FPS = 60
+FPS = 120
 
 speed = 1
 vert_max = 12
@@ -113,7 +113,7 @@ enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
 
 def login_menu():
     click = False
-    global EVENT, logged_username
+    global EVENT, logged_username,config
     password_dots = ""
     password = ""
     username = ""
@@ -901,10 +901,11 @@ def regen(time_last_damaged):
 def silly(e):
     return e[1]
 
-def detect_bullet_collision(bullets, x, y, xspeed, yspeed):
+'''def detect_bullet_collision(bullets, x, y, xspeed, yspeed):
     a= sym.symbols('a')
     bullets_on_target =[]
     mean = 0
+
     for i in bullets:
         eq1 = sym.Eq(i.rect.x + a * i.xvelo , x)
         eq2 = sym.Eq(i.rect.y + a * i.yvelo , y)
@@ -916,22 +917,30 @@ def detect_bullet_collision(bullets, x, y, xspeed, yspeed):
             bullets_on_target.append((i,a))
             bullets_on_target.sort(reverse=False,key=silly)
     for i in bullets_on_target:
-        mean += i[1]
+        mean+=i[1]
     mean = mean//len(bullets_on_target)
-    #up
+    return bullets_on_target,mean
 
-    #left
+def recursion_stuff(bullets, x, y, xspeed, yspeed):
+    detect_bullet_collision(bullets, x, y, xspeed, yspeed)
+    if -player.xvelo <= hor_max:
+        recursion_stuff(bullets, x-xspeed-speed, y, xspeed-speed, yspeed)#left
+    else:
+        recursion_stuff(bullets, x - xspeed, y, xspeed, yspeed)  # left
+    if player.xvelo <= hor_max:
+        recursion_stuff(bullets, x+xspeed+speed, y, xspeed+speed, yspeed)#right
+    else:
+        recursion_stuff(bullets, x + xspeed, y, xspeed, yspeed)  # right
+    if -player.yvelo <= vert_max:
+        recursion_stuff(bullets, x, y-yspeed-speed, xspeed, yspeed-speed)#up
+    else:
+        recursion_stuff(bullets, x , y -yspeed, xspeed, yspeed)  # up
+    if player.yvelo <= vert_max:
+        recursion_stuff(bullets, x, y +yspeed+ speed, xspeed, yspeed+speed)
+    else:
+        recursion_stuff(bullets, x, y + yspeed, xspeed, yspeed)
 
-    #down
-
-    #right
-
-    #nothing7
-
-    if best_move == [] or best_move[0]<mean:
-        best_move=[]+path
-    if
-
+'''
 
 
 
