@@ -896,7 +896,7 @@ def bullet_stuff(mg_bullets,enemy_bullets):
         i.rect.x += i.xvelo
         i.rect.y += i.yvelo
         if i.rect.colliderect(player.rect):  # i.rect.x < enemy.rect.x  + 25 and i.rect.x > enemy.rect.x  - 45 and i.rect.y < enemy.rect.y + 25 and i.rect.y > enemy.rect.y - 45:
-            player_HIT = True
+            player_HIT = True #weird for working with ts and not without no hit reg
             DD += mg_dmg
             if DD >= width - 40:
                 DD = width - 40
@@ -942,13 +942,29 @@ def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets, DD):
 
     pygame.display.update()
 
-def cross_shooting(enemy_bullets,enemy,x):
-    if x%60 == 0:
-        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, 0,0,eb_speed))
-        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, 90,0,eb_speed))
-        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, 180,0,eb_speed))
-        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, 270,0,eb_speed))
+def cross_shooting(enemy_bullets,enemy,start,x):
+    for i in range(0,271,90):
+        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, i,0,eb_speed))
+    
 
+def diag_shooting(enemy_bullets,enemy,start,x):
+    for i in range(45,316,90):
+        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, i,0,eb_speed))
+        
+def star_shooting(enemy_bullets,enemy,start,x):
+    for i in range(0,316,45):
+        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, i,0,eb_speed))
+def spiral_shooting(enemy_bullets,enemy,start,x):
+    if x<start:
+        x+=start
+    if x-start ==200:#fix
+        pass
+    if (x-start)%4==0:
+        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y,((x-start)/4)*15 ,0,eb_speed))
+        
+    #fix timing if goes on for longer than cycle just fix
+    
+        
 def main():
     global EVENT
     clock = pygame.time.Clock()
@@ -975,7 +991,8 @@ def main():
                 pass
 
         #enemy.rect.x += 2
-        cross_shooting(enemy_bullets, enemy, x)
+        if x%60 == 0:#random pls
+            cross_shooting(enemy_bullets, enemy, x)
 
         mx, my = pygame.mouse.get_pos()
         dx, dy = mx - player.rect.x, my - player.rect.y
