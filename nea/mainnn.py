@@ -41,7 +41,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (170, 255, 0)
 
-FPS = 120
+
 
 speed = 1
 vert_max = 12
@@ -53,6 +53,11 @@ mg_bullets = []
 mg_tl = 7
 mg_dmg = 5
 max_mg = 200
+
+enemy_bullets = []
+eb_speed = 2
+eb_dmg = 5
+
 
 DD = 0  # dmg dealt
 
@@ -76,7 +81,7 @@ EVENT = ""
 
 
 class Bullets:
-    def __init__(self, pos_x, pos_y, angle, time):
+    def __init__(self, pos_x, pos_y, angle, time,bullet_speed):
         img = pygame.image.load("mgbullets.png").convert_alpha()
         self.image = pygame.transform.rotate(img, angle)
         self.rect = self.image.get_rect()
@@ -85,8 +90,8 @@ class Bullets:
         self.time = time
 
         self.angle = angle + 90
-        self.xvelo = math.cos(2 * math.pi * (self.angle / 360)) * mg_speed
-        self.yvelo = math.sin(2 * math.pi * (self.angle / 360)) * mg_speed
+        self.xvelo = math.cos(2 * math.pi * (self.angle / 360)) * bullet_speed
+        self.yvelo = math.sin(2 * math.pi * (self.angle / 360)) * bullet_speed
         if self.angle < -90:
             self.xvelo = self.xvelo
             self.yvelo = -self.yvelo
@@ -859,33 +864,50 @@ def keep_on_screeen(player):
         player.rect.y = 25
 
 
-def shooting(mg_bullets, angle):
+def shooting(mg_bullets, angle,player):
     buttons = pygame.mouse.get_pressed()
     if buttons[0]:
-        mg_bullets.append(Bullets(player.rect.x, player.rect.y, angle, time.time()))
+        mg_bullets.append(Bullets(player.rect.x, player.rect.y, angle, time.time(),mg_speed))
 
 
-def bullet_stuff(mg_bullets):
+def bullet_stuff(mg_bullets,enemy_bullets):
     global DD, time_last_damaged, EVENT
     for i in mg_bullets:
         if i.rect.colliderect(enemy.rect):  # i.rect.x < enemy.rect.x  + 25 and i.rect.x > enemy.rect.x  - 45 and i.rect.y < enemy.rect.y + 25 and i.rect.y > enemy.rect.y - 45:
-            HIT = True
+            enemy_HIT = True
             DD += mg_dmg
             if DD >= width - 40:
                 DD = width - 40
                 EVENT = "NEXTLEVEL"
             time_last_damaged = time.time()
         else:
-            HIT = False
+            enemy_HIT = False
+
 
         i.rect.x += i.xvelo
         i.rect.y += i.yvelo
-        if i.rect.y > height or i.rect.y < 0 or time.time() - i.time > mg_tl or HIT:
+        if i.rect.y > height or i.rect.y < 0 or time.time() - i.time > mg_tl or enemy_HIT:
             mg_bullets.remove(i)
         if i.rect.x > width:
             i.rect.x -= width
         if i.rect.x < 0:
             i.rect.x += width
+    for i in enemy_bullets:
+        i.rect.x += i.xvelo
+        i.rect.y += i.yvelo
+        if i.rect.colliderect(player.rect):  # i.rect.x < enemy.rect.x  + 25 and i.rect.x > enemy.rect.x  - 45 and i.rect.y < enemy.rect.y + 25 and i.rect.y > enemy.rect.y - 45:
+            player_HIT = True
+            DD += mg_dmg
+            if DD >= width - 40:
+                DD = width - 40
+                EVENT = "NEXTLEVEL"
+            time_last_damaged = time.time()
+        else:
+            player_HIT = False
+        if i.rect.y > height or i.rect.y < 0 or i.rect.x<0 or i.rect.x>width or player_HIT:
+            enemy_bullets.remove(i)
+
+
     if len(mg_bullets) > max_mg:
         del mg_bullets[0]
     return time_last_damaged
@@ -898,53 +920,9 @@ def regen(time_last_damaged):
             DD -= regen_amm
             if time.time() - time_last_damaged > greater_regen_time:
                 DD -= greater_regen_amm
-def silly(e):
-    return e[1]
-
-'''def detect_bullet_collision(bullets, x, y, xspeed, yspeed):
-    a= sym.symbols('a')
-    bullets_on_target =[]
-    mean = 0
-
-    for i in bullets:
-        eq1 = sym.Eq(i.rect.x + a * i.xvelo , x)
-        eq2 = sym.Eq(i.rect.y + a * i.yvelo , y)
-        result = sym.solve([eq1, eq2], (a))
-
-        #sort out if bullet past target a becomes neg and says on target
-
-        if result != []:
-            bullets_on_target.append((i,a))
-            bullets_on_target.sort(reverse=False,key=silly)
-    for i in bullets_on_target:
-        mean+=i[1]
-    mean = mean//len(bullets_on_target)
-    return bullets_on_target,mean
-
-def recursion_stuff(bullets, x, y, xspeed, yspeed):
-    detect_bullet_collision(bullets, x, y, xspeed, yspeed)
-    if -player.xvelo <= hor_max:
-        recursion_stuff(bullets, x-xspeed-speed, y, xspeed-speed, yspeed)#left
-    else:
-        recursion_stuff(bullets, x - xspeed, y, xspeed, yspeed)  # left
-    if player.xvelo <= hor_max:
-        recursion_stuff(bullets, x+xspeed+speed, y, xspeed+speed, yspeed)#right
-    else:
-        recursion_stuff(bullets, x + xspeed, y, xspeed, yspeed)  # right
-    if -player.yvelo <= vert_max:
-        recursion_stuff(bullets, x, y-yspeed-speed, xspeed, yspeed-speed)#up
-    else:
-        recursion_stuff(bullets, x , y -yspeed, xspeed, yspeed)  # up
-    if player.yvelo <= vert_max:
-        recursion_stuff(bullets, x, y +yspeed+ speed, xspeed, yspeed+speed)
-    else:
-        recursion_stuff(bullets, x, y + yspeed, xspeed, yspeed)
-
-'''
 
 
-
-def draw(rot_image, rot_image_rect, mg_bullets, DD):
+def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets, DD):
     screen.fill(BLACK)
 
     screen.blit(enemy.img, (enemy.rect.x, enemy.rect.y))
@@ -952,6 +930,8 @@ def draw(rot_image, rot_image_rect, mg_bullets, DD):
     screen.blit(rot_image, rot_image_rect.topleft)
 
     for i in mg_bullets:
+        screen.blit(i.image, (i.rect.x, i.rect.y))
+    for i in enemy_bullets:
         screen.blit(i.image, (i.rect.x, i.rect.y))
 
     pygame.draw.rect(screen, GREEN, pygame.Rect(20 + DD, 20, width - 40 - DD, 20))
@@ -962,16 +942,22 @@ def draw(rot_image, rot_image_rect, mg_bullets, DD):
 
     pygame.display.update()
 
+def cross_shooting(enemy_bullets,enemy,x):
+    if x%60 == 0:
+        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, 0,0,eb_speed))
+        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, 90,0,eb_speed))
+        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, 180,0,eb_speed))
+        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, 270,0,eb_speed))
 
 def main():
     global EVENT
     clock = pygame.time.Clock()
-    login_signup_menu()
+    #login_signup_menu()
     run = True
 
     x = 0
     while run:
-        clock.tick(FPS)
+
         x += 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -988,7 +974,8 @@ def main():
             except:
                 pass
 
-        enemy.rect.x += 2
+        #enemy.rect.x += 2
+        cross_shooting(enemy_bullets, enemy, x)
 
         mx, my = pygame.mouse.get_pos()
         dx, dy = mx - player.rect.x, my - player.rect.y
@@ -1000,12 +987,12 @@ def main():
         keep_on_screeen(player)
         keep_on_screeen(enemy)
 
-        shooting(mg_bullets, angle)
-        time_last_damaged = bullet_stuff(mg_bullets)
+        shooting(mg_bullets, angle,player)
+        time_last_damaged = bullet_stuff(mg_bullets,enemy_bullets)
 
         regen(time_last_damaged)
 
-        draw(rot_image, rot_image_rect, mg_bullets, DD)
+        draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets, DD)
         player_movement(player)
 
 
