@@ -6,8 +6,8 @@ import math
 import time
 import socket
 import pickle
-import datetime
-#import sympy as sym
+import random
+
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ("127.0.0.1", 3100)
@@ -41,12 +41,19 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (170, 255, 0)
 
+FPS = 60
 
 
+# can move to class
 speed = 1
 vert_max = 12
 hor_max = 12
 friction = 0.93  # higher = more slide
+
+long_move_speed = 0.5
+long_vert_max = 10
+long_hor_max = 10
+
 
 mg_speed = 7
 mg_bullets = []
@@ -55,28 +62,11 @@ mg_dmg = 5
 max_mg = 200
 
 enemy_bullets = []
-eb_speed = 2
+eb_speed = 3
 eb_dmg = 5
 
 
-DD = 0  # dmg dealt
 
-regen_time = 3  # regen after 3 secs
-greater_regen_time = 1.5  # more regen after 5
-greater_regen_amm = 2  # 0.5 + 2 per frame
-regen_amm = 2
-time_last_damaged = 0  # time of last hit
-'''
-DEAD = pygame.USEREVENT + 1
-NEXT_LEVEL = pygame.USEREVENT + 2
-HIT = pygame.USEREVENT + 3
-MENU = pygame.USEREVENT + 4
-SETTINGS = pygame.USEREVENT + 5
-LOGIN = pygame.USEREVENT + 6
-SIGNUP = pygame.USEREVENT + 7
-START = pygame.USEREVENT + 8
-PLAY = pygame.USEREVENT + 9
-'''
 EVENT = ""
 
 
@@ -84,9 +74,10 @@ class Bullets:
     def __init__(self, pos_x, pos_y, angle, time,bullet_speed):
         img = pygame.image.load("mgbullets.png").convert_alpha()
         self.image = pygame.transform.rotate(img, angle)
-        self.rect = self.image.get_rect()
-        self.rect.x = pos_x
-        self.rect.y = pos_y
+        self.x = pos_x
+        self.y = pos_y
+
+
         self.time = time
 
         self.angle = angle + 90
@@ -118,7 +109,7 @@ enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
 
 def login_menu():
     click = False
-    global EVENT, logged_username,config
+    global EVENT, logged_username
     password_dots = ""
     password = ""
     username = ""
@@ -854,75 +845,54 @@ def player_movement(player):
 
 
 def keep_on_screeen(player):
-    if player.rect.x - 25 > width:
-        player.rect.x -= (25 + width)
-    if player.rect.x + 25 < 0:
+    if player.rect.x - 17 > width:
+        player.rect.x -= (17 + width)
+    if player.rect.x + 17 < 0:
         player.rect.x += width
     if player.rect.y + 25 >= height:
-        player.rect.y = height - 25
-    if player.rect.y - 25 <= 0:
-        player.rect.y = 25
+        player.rect.y = height - 25 - 7
+    if player.rect.y  <= 25:
+        player.rect.y = 27
 
 
-def shooting(mg_bullets, angle,player):
+def shooting(mg_bullets, angle):
     buttons = pygame.mouse.get_pressed()
     if buttons[0]:
-        mg_bullets.append(Bullets(player.rect.x, player.rect.y, angle, time.time(),mg_speed))
+        mg_bullets.append(Bullets(player.rect.x+17, player.rect.y+25, angle, time.time(),mg_speed))
 
 
 def bullet_stuff(mg_bullets,enemy_bullets):
     global DD, time_last_damaged, EVENT
     for i in mg_bullets:
-        if i.rect.colliderect(enemy.rect):  # i.rect.x < enemy.rect.x  + 25 and i.rect.x > enemy.rect.x  - 45 and i.rect.y < enemy.rect.y + 25 and i.rect.y > enemy.rect.y - 45:
+        if i.x < enemy.rect.x + 48 and i.x > enemy.rect.x  and i.y < enemy.rect.y + 48 and i.y > enemy.rect.y :
             enemy_HIT = True
-            DD += mg_dmg
-            if DD >= width - 40:
-                DD = width - 40
-                EVENT = "NEXTLEVEL"
-            time_last_damaged = time.time()
         else:
             enemy_HIT = False
 
-
-        i.rect.x += i.xvelo
-        i.rect.y += i.yvelo
-        if i.rect.y > height or i.rect.y < 0 or time.time() - i.time > mg_tl or enemy_HIT:
+        i.x += i.xvelo
+        i.y += i.yvelo
+        if i.y > height or i.y < 0 or time.time() - i.time > mg_tl or enemy_HIT:
             mg_bullets.remove(i)
-        if i.rect.x > width:
-            i.rect.x -= width
-        if i.rect.x < 0:
-            i.rect.x += width
+        if i.x > width:
+            i.x -= width
+        if i.x < 0:
+            i.x += width
     for i in enemy_bullets:
-        i.rect.x += i.xvelo
-        i.rect.y += i.yvelo
-        if i.rect.colliderect(player.rect):  # i.rect.x < enemy.rect.x  + 25 and i.rect.x > enemy.rect.x  - 45 and i.rect.y < enemy.rect.y + 25 and i.rect.y > enemy.rect.y - 45:
-            player_HIT = True #weird for working with ts and not without no hit reg
-            DD += mg_dmg
-            if DD >= width - 40:
-                DD = width - 40
-                EVENT = "NEXTLEVEL"
-            time_last_damaged = time.time()
+        i.x += i.xvelo
+        i.y += i.yvelo
+        if i.x < player.rect.x  + 32 and i.x > player.rect.x+2   and i.y < player.rect.y + 48 and i.y > player.rect.y+2 :
+            player_HIT = True
+
         else:
             player_HIT = False
-        if i.rect.y > height or i.rect.y < 0 or i.rect.x<0 or i.rect.x>width or player_HIT:
+        if i.y > height or i.y < 0 or i.x<0 or i.x>width or player_HIT:
             enemy_bullets.remove(i)
+        if len(mg_bullets) > max_mg:
+            del mg_bullets[0]
 
 
-    if len(mg_bullets) > max_mg:
-        del mg_bullets[0]
-    return time_last_damaged
 
-
-def regen(time_last_damaged):
-    global DD
-    if time.time() - time_last_damaged > regen_time and time_last_damaged != 0:
-        if DD > 0:
-            DD -= regen_amm
-            if time.time() - time_last_damaged > greater_regen_time:
-                DD -= greater_regen_amm
-
-
-def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets, DD):
+def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets):
     screen.fill(BLACK)
 
     screen.blit(enemy.img, (enemy.rect.x, enemy.rect.y))
@@ -930,54 +900,116 @@ def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets, DD):
     screen.blit(rot_image, rot_image_rect.topleft)
 
     for i in mg_bullets:
-        screen.blit(i.image, (i.rect.x, i.rect.y))
+        screen.blit(i.image, (i.x, i.y))
     for i in enemy_bullets:
-        screen.blit(i.image, (i.rect.x, i.rect.y))
+        screen.blit(i.image, (i.x-3, i.y))
 
-    pygame.draw.rect(screen, GREEN, pygame.Rect(20 + DD, 20, width - 40 - DD, 20))
+    #pygame.draw.rect(screen, WHITE, enemy.rect)
 
-    pygame.draw.rect(screen, RED, pygame.Rect(20, 20, DD, 20))
-
-    pygame.draw.circle(screen, WHITE, (player.rect.x, player.rect.y), 5)
+    pygame.draw.circle(screen, WHITE, (player.rect.x+17, player.rect.y+25), 5)
 
     pygame.display.update()
 
-def cross_shooting(enemy_bullets,enemy,start,x):
-    for i in range(0,271,90):
-        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, i,0,eb_speed))
-    
 
-def diag_shooting(enemy_bullets,enemy,start,x):
-    for i in range(45,316,90):
-        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, i,0,eb_speed))
-        
-def star_shooting(enemy_bullets,enemy,start,x):
-    for i in range(0,316,45):
-        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y, i,0,eb_speed))
-def spiral_shooting(enemy_bullets,enemy,start,x):
+def cross_shooting(enemy_bullets, enemy):
+    for i in range(0, 271, 90):
+        enemy_bullets.append(Bullets(enemy.rect.x+25, enemy.rect.y+25, i, 0, eb_speed))
+
+
+def diag_shooting(enemy_bullets, enemy):
+    for i in range(45, 316, 90):
+        enemy_bullets.append(Bullets(enemy.rect.x+25, enemy.rect.y+25, i, 0, eb_speed))
+
+
+
+def star_shooting(enemy_bullets, enemy):
+    for i in range(0, 316, 45):
+        enemy_bullets.append(Bullets(enemy.rect.x+25, enemy.rect.y+25, i, 0, eb_speed))
+
+
+def spiral_shooting(enemy_bullets, enemy,x):
+
+    if ((x+25)%25) not in [15,16,17,18,19,20,21,22,23,24]:#range(16,25):
+
+        enemy_bullets.append(Bullets(enemy.rect.x+25, enemy.rect.y+25, ((x+25)%25)*24, 0, eb_speed))
+
+
+
+
+def long_move_mech(start,x,enemy_angle):# fix ts so it works on any res
     if x<start:
-        x+=start
-    if x-start ==200:#fix
-        pass
-    if (x-start)%4==0:
-        enemy_bullets.append(Bullets(enemy.rect.x, enemy.rect.y,((x-start)/4)*15 ,0,eb_speed))
-        
-    #fix timing if goes on for longer than cycle just fix
-    
-        
+        x+=3600
+
+    if x-start <60:
+
+
+        enemy.xvelo += long_move_speed * math.sin(2 * math.pi * (enemy_angle / 360))
+        enemy.yvelo += long_move_speed * -math.cos(2 * math.pi * (enemy_angle / 360))
+    elif x - start ==120:
+        return False
+
+
+
+
+    enemy.xvelo *= 0.97
+    enemy.yvelo *= 0.97
+
+
+
+
+    enemy.rect.x += enemy.xvelo
+    enemy.rect.y += enemy.yvelo
+    if enemy.xvelo >= long_hor_max:
+        enemy.xvelo = long_hor_max
+    if enemy.xvelo <= -long_hor_max:
+        enemy.xvelo = -long_hor_max
+    if enemy.yvelo >= long_vert_max:
+        enemy.yvelo = long_vert_max
+    if enemy.yvelo <= -long_vert_max:
+        enemy.yvelo = -long_vert_max
+    return True
+
+def short_move_mech(x,a,b,c):
+
+    if (x+299)%300==0:
+        enemy.rect.x += 200 * math.cos(2 * math.pi * (a / 360))
+        enemy.rect.y += 200 * math.sin(2 * math.pi * (a / 360))
+
+        return True
+    elif (x+299)%300==100:
+        enemy.rect.x += 200 * math.cos(2 * math.pi * (b / 360))
+        enemy.rect.y += 200 * math.sin(2 * math.pi * (b / 360))
+
+        return True
+    elif (x+299)%300==200:
+
+        enemy.rect.x += 200 * math.cos(2 * math.pi * (c / 360))
+        enemy.rect.y += 200 * math.sin(2 * math.pi * (c / 360))
+
+        return False
+    else:
+        return True
 def main():
     global EVENT
     clock = pygame.time.Clock()
     #login_signup_menu()
     run = True
-
+    long_move = False
+    short_move = False
+    cross_shoot = False
+    diag_shoot = False
+    star_shoot = False
+    spiral_shoot = False
+    shoot = False
+    MOVING =False
     x = 0
     while run:
-
+        clock.tick(FPS)
         x += 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+
 
         if x == 3600:  # 1 min
             x = 0
@@ -990,27 +1022,131 @@ def main():
             except:
                 pass
 
-        #enemy.rect.x += 2
-        if x%60 == 0:#random pls
-            cross_shooting(enemy_bullets, enemy, x)
+
+
+
+        if shoot == False:
+            shoot_type = random.randint(0, 3)
+
+            start = x
+            shoot_time = random.randint(3, 7)
+            if shoot_type ==0:
+                cross_shoot =True
+
+
+            elif shoot_type==1:
+                diag_shoot = True
+
+            elif shoot_type==2:
+                star_shoot = True
+            elif shoot_type==3:
+                spiral_shoot = True
+            shoot = True
+
+        if cross_shoot ==True:
+            timer = x
+            if x % 60 == 0:
+                cross_shooting(enemy_bullets, enemy)
+            if timer<start:
+                timer+=3600
+            if (timer-start) == shoot_time*60:
+                shoot = False
+                cross_shoot = False
+
+        elif diag_shoot ==True:
+            timer = x
+            if x % 60 == 0:
+                diag_shooting(enemy_bullets, enemy)
+            if timer<start:
+                timer+=3600
+            if (x-start) == shoot_time*60:
+                shoot = False
+                diag_shoot = False
+
+        elif star_shoot ==True:
+            timer = x
+            if x%60==0:
+                star_shooting(enemy_bullets, enemy)
+            if timer<start:
+                timer+=3600
+            if (timer-start) == shoot_time*60:
+                shoot = False
+                star_shoot = False
+
+        elif spiral_shoot ==True:
+            timer = x
+            spiral_shooting(enemy_bullets, enemy,x)
+            if timer<start:
+                timer+=3600
+            if (timer-start) == shoot_time*60:
+                shoot = False
+                spiral_shoot = False
+
+
+
+
+
+        #0 no move 1 long move #short move
+        #transfereable between reses
+        if not MOVING:
+            move_type = random.randint(0, 1)
+            move_duration =random.randint(2, 5)
+
+
+            if move_type==1:
+                long_move = True
+                if enemy.rect.y >755:
+                    if random.randint(0, 1) ==0:
+                        enemy_angle = random.randint(0, 90)
+
+                    else:
+                        enemy_angle = random.randint(270, 360)
+
+
+                elif enemy.rect.y<250:
+                    enemy_angle = random.randint(90, 270)
+
+                else:
+                    enemy_angle = random.randint(0, 360)
+
+                start = x
+
+            elif move_type==0:
+                short_move = True
+
+                a,b,c = random.randint(0, 360),random.randint(0, 360),random.randint(0, 360)
+        if long_move == True:
+
+            long_move = long_move_mech(start,x,enemy_angle)
+            MOVING = long_move
+
+        if short_move == True:
+
+            short_move=short_move_mech(x,a,b,c)
+            MOVING = short_move
+
 
         mx, my = pygame.mouse.get_pos()
         dx, dy = mx - player.rect.x, my - player.rect.y
         angle = math.degrees(math.atan2(-dy, dx)) - 90
 
-        rot_image = pygame.transform.rotate(player.img, angle)
-        rot_image_rect = rot_image.get_rect(center=(player.rect.x, player.rect.y))
 
+        rot_image = pygame.transform.rotate(player.img, angle)
+        rot_image_rect = rot_image.get_rect(center=(player.rect.x+17,player.rect.y+25))
+
+        shooting(mg_bullets, angle)
         keep_on_screeen(player)
         keep_on_screeen(enemy)
 
-        shooting(mg_bullets, angle,player)
-        time_last_damaged = bullet_stuff(mg_bullets,enemy_bullets)
 
-        regen(time_last_damaged)
+        bullet_stuff(mg_bullets,enemy_bullets)
 
-        draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets, DD)
+
         player_movement(player)
+        draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets)
+
+
+
 
 
 if __name__ == "__main__":
