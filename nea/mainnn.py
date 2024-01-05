@@ -65,7 +65,8 @@ enemy_bullets = []
 eb_speed = 3
 eb_dmg = 5
 
-
+heart_img=
+#scale
 
 EVENT = ""
 
@@ -862,7 +863,7 @@ def shooting(mg_bullets, angle):
 
 
 def bullet_stuff(mg_bullets,enemy_bullets):
-    global DD, time_last_damaged, EVENT
+    global hearts, time_last_damaged, EVENT
     for i in mg_bullets:
         if i.x < enemy.rect.x + 48 and i.x > enemy.rect.x  and i.y < enemy.rect.y + 48 and i.y > enemy.rect.y :
             enemy_HIT = True
@@ -882,6 +883,7 @@ def bullet_stuff(mg_bullets,enemy_bullets):
         i.y += i.yvelo
         if i.x < player.rect.x  + 32 and i.x > player.rect.x+2   and i.y < player.rect.y + 48 and i.y > player.rect.y+2 :
             player_HIT = True
+            heart-=1
 
         else:
             player_HIT = False
@@ -905,6 +907,8 @@ def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets):
         screen.blit(i.image, (i.x-3, i.y))
 
     #pygame.draw.rect(screen, WHITE, enemy.rect)
+    for i in range(0,heart):
+        screen.blit(heart_img,(i*,height-))#height of image tmies width
 
     pygame.draw.circle(screen, WHITE, (player.rect.x+17, player.rect.y+25), 5)
 
