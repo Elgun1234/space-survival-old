@@ -88,7 +88,8 @@ class Bullets:
         self.image = pygame.transform.rotate(img, angle)
         self.x = pos_x
         self.y = pos_y
-
+        self.rect = self.image.get_rect()# maybe issuw
+        self.colour = colour
 
         self.time = time
 
@@ -971,6 +972,7 @@ def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets,score_text):
     
     for i in mg_bullets:
         screen.blit(i.image, (i.x, i.y))
+        pygame.draw.rect(screen,i.colour,i.rect)##
     for i in enemy_bullets:
         screen.blit(i.image, (i.x-3, i.y))
 
