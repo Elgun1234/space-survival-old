@@ -40,6 +40,12 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (170, 255, 0)
+BLUE = (0,0,255)
+YELLOW =(255,255,0)
+PINK=(255,0,255)
+CYAN =(0,255,255)
+ORANGE=(255,102,0)
+colours =[RED,GREEN,BLUE,YELLOW,PINK,CYAN,ORANGE]
 
 FPS = 60
 
@@ -907,8 +913,8 @@ def keep_on_screeen(player):
 def shooting(mg_bullets, angle,x):
     buttons = pygame.mouse.get_pressed()
     if buttons[0]:
-        #do hella if statements abnd fix class
-        mg_bullets.append(Bullets(player.rect.x+17, player.rect.y+25, angle, time.time(),mg_speed))
+        
+        mg_bullets.append(Bullets(player.rect.x+17, player.rect.y+25, angle, time.time(),mg_speed),choice(colours))
 
 
 def bullet_stuff(mg_bullets,enemy_bullets):
