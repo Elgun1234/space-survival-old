@@ -904,9 +904,10 @@ def keep_on_screeen(player):
         player.rect.y = 27
 
 
-def shooting(mg_bullets, angle):
+def shooting(mg_bullets, angle,x):
     buttons = pygame.mouse.get_pressed()
     if buttons[0]:
+        #do hella if statements abnd fix class
         mg_bullets.append(Bullets(player.rect.x+17, player.rect.y+25, angle, time.time(),mg_speed))
 
 
