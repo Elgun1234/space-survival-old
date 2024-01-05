@@ -45,7 +45,7 @@ YELLOW =(255,255,0)
 PINK=(255,0,255)
 CYAN =(0,255,255)
 ORANGE=(255,102,0)
-colours =[RED,GREEN,BLUE,YELLOW,PINK,CYAN,ORANGE]
+colours =[RED,GREEN,BLUE,YELLOW,PINK,CYAN,ORANGE]# change bullets to rects
 
 FPS = 60
 
@@ -83,7 +83,7 @@ EVENT = ""
 
 
 class Bullets:
-    def __init__(self, pos_x, pos_y, angle, time,bullet_speed):
+    def __init__(self, pos_x, pos_y, angle, time,bullet_speed,colour):
         img = pygame.image.load("mgbullets.png").convert_alpha()
         self.image = pygame.transform.rotate(img, angle)
         self.x = pos_x
