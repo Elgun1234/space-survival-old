@@ -915,6 +915,7 @@ def bullet_stuff(mg_bullets,enemy_bullets):
     for i in mg_bullets:
         if i.x < enemy.rect.x + 48 and i.x > enemy.rect.x  and i.y < enemy.rect.y + 48 and i.y > enemy.rect.y :
             enemy_HIT = True
+            score += 100
         else:
             enemy_HIT = False
 
@@ -942,13 +943,15 @@ def bullet_stuff(mg_bullets,enemy_bullets):
 
 
 
-def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets):
+def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets,score_text):
     screen.fill(BLACK)
 
     screen.blit(enemy.img, (enemy.rect.x, enemy.rect.y))
 
     screen.blit(rot_image, rot_image_rect.topleft)
-
+    
+    screen.blit(score_text,width-score_text.get_width(),score_text.get_height())
+    
     for i in mg_bullets:
         screen.blit(i.image, (i.x, i.y))
     for i in enemy_bullets:
@@ -1184,6 +1187,7 @@ def main():
         dx, dy = mx - player.rect.x, my - player.rect.y
         angle = math.degrees(math.atan2(-dy, dx)) - 90
 
+        score_text = button_font.render(f"Score: {score}", 1, WHITE)
 
         rot_image = pygame.transform.rotate(player.img, angle)
         rot_image_rect = rot_image.get_rect(center=(player.rect.x+17,player.rect.y+25))
@@ -1199,7 +1203,7 @@ def main():
             EVENT = "GAMEOVER"
 
         player_movement(player)
-        draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets)
+        draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets,score_text)
 
 
 
