@@ -3,7 +3,7 @@ import pip
 pip.main(["install", "--user", "Pygame"])
 import pygame
 import math
-import time
+import datetime
 import socket
 import pickle
 import random
@@ -627,12 +627,12 @@ def apply_config(config):
     down_key = int(choices[3])
     right_key = int(choices[4])
 
-def game_over_menu():
+def game_over_menu(run_duration):
     global EVENT,score,hearts
     button_text = []
     running = True
     click = False
-    while running:
+    while running:#display runtime score maybe shots fired
 
         for event in pygame.event.get():
 
@@ -657,7 +657,17 @@ def game_over_menu():
         if EVENT=="GAME":
             score = 0
             hearts = 5
-            break
+            mg_bullets =[]
+            enemy_bullets=[]
+            player.xvelo =0
+            player.yvelo=0
+            enemy.xvelo=0
+            enemy.yvelo=0
+            player.rect.x =
+            player.rect.y = 
+            enemy.rect.x =
+            enemy.rect.y=
+            main()
         game_over_menu_draw(button_text,Title_text,play_again_button)
 
 def game_over_menu_draw(button_text,Title_text, *args):
@@ -1064,6 +1074,7 @@ def main():
     spiral_shoot = False
     shoot = False
     MOVING =False
+    run_start = datetime.datetime()
     x = 0
     while run:
         clock.tick(FPS)
@@ -1074,7 +1085,10 @@ def main():
                 pygame.quit()
 
         if EVENT == "GAMEOVER":
-            game_over_menu()#print stats
+            run_duration = datetime.datetime - run_start
+            game_over_menu(run_duration)#print stats
+        #maybe dont need this so cant stop cappig x at 3600 go game over to use 
+        
         if x == 3600:  # 1 min
             x = 0
             try:
