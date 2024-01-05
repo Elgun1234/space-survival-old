@@ -65,11 +65,15 @@ enemy_bullets = []
 eb_speed = 3
 eb_dmg = 5
 
-heart_img=
-hearts =
-#scale
+heart_img=pygame.image.load(f"heart.png").convert_alpha()
+heart_img = pygame.transform.scale(heart_img, (50, 50))
+hearts =5
+
+score = 0
 
 EVENT = ""
+#EVENTS=: START.MENU,PLAY,LOGIN,SIGNUP,SETTINGS,GAMEOVER,GAME
+
 
 
 class Bullets:
@@ -617,7 +621,50 @@ def apply_config(config):
     down_key = int(choices[3])
     right_key = int(choices[4])
 
+def game_over_menu():
+    global EVENT,score,hearts
+    button_text = []
+    running = True
+    click = False
+    while running:
 
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+
+        mx, my = pygame.mouse.get_pos()
+
+        Title_text = TITLE_font.render("GAME OVER", 1, RED)
+
+        play_again_button_text = button_font.render("PLAY AGAIN", 1, WHITE)
+        play_again_button = pygame.Rect((width // 2) - ((play_again_button_text.get_width()+20) // 2),(height // 2) - ((play_again_button_text.get_height()+20) // 2),play_again_button_text.get_width()+20,play_again_button_text.get_height()+20)
+
+        button_text.append(play_again_button_text)
+
+        if click:
+
+            if play_again_button.collidepoint((mx, my)):
+                EVENT = "GAME"
+        if EVENT=="GAME":
+            score = 0
+            hearts = 5
+            break
+        game_over_menu_draw(button_text,Title_text,play_again_button)
+
+def game_over_menu_draw(button_text,Title_text, *args):
+    buttons = list(args)
+    screen.fill(BLACK)
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
+        screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2, buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
+    screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, height // 5))
+
+    pygame.display.update()
 def settings_menu():
     global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key, EVENT, config
     up_key_collection = False
@@ -884,7 +931,7 @@ def bullet_stuff(mg_bullets,enemy_bullets):
         i.y += i.yvelo
         if i.x < player.rect.x  + 32 and i.x > player.rect.x+2   and i.y < player.rect.y + 48 and i.y > player.rect.y+2 :
             player_HIT = True
-            heart-=1
+            hearts -= 1
 
         else:
             player_HIT = False
@@ -908,8 +955,8 @@ def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets):
         screen.blit(i.image, (i.x-3, i.y))
 
     #pygame.draw.rect(screen, WHITE, enemy.rect)
-    for i in range(0,heart):
-        screen.blit(heart_img,(i*,height-))#height of image tmies width
+    for i in range(0,hearts):
+        screen.blit(heart_img,(i*50,height-50))
 
     pygame.draw.circle(screen, WHITE, (player.rect.x+17, player.rect.y+25), 5)
 
@@ -1011,11 +1058,13 @@ def main():
     while run:
         clock.tick(FPS)
         x += 1
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-
+        if EVENT == "GAMEOVER":
+            game_over_menu()#print stats
         if x == 3600:  # 1 min
             x = 0
             try:
@@ -1095,7 +1144,7 @@ def main():
         #transfereable between reses
         if not MOVING:
             move_type = random.randint(0, 1)
-            move_duration =random.randint(2, 5)
+
 
 
             if move_type==1:
@@ -1146,6 +1195,8 @@ def main():
 
         bullet_stuff(mg_bullets,enemy_bullets)
 
+        if hearts == 0:
+            EVENT = "GAMEOVER"
 
         player_movement(player)
         draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets)
