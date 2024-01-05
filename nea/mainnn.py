@@ -66,6 +66,7 @@ eb_speed = 3
 eb_dmg = 5
 
 heart_img=
+hearts =
 #scale
 
 EVENT = ""
