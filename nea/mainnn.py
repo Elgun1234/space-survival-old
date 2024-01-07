@@ -3,11 +3,11 @@ import pip
 pip.main(["install", "--user", "Pygame"])
 import pygame
 import math
-import datetime
+from datetime import datetime, timedelta
 import socket
 import pickle
 import random
-
+import hashlib
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ("127.0.0.1", 3100)
@@ -37,18 +37,11 @@ pygame.display.set_caption("gods gift to gamers")
 TITLE = "SPACE FLY SHOOT AI GAME"
 
 BLACK = (0, 0, 0)
-RED = (255, 0, 0)
 WHITE = (255, 255, 255)
-GREEN = (170, 255, 0)
-BLUE = (0,0,255)
-YELLOW =(255,255,0)
-PINK=(255,0,255)
-CYAN =(0,255,255)
-ORANGE=(255,102,0)
-colours =[RED,GREEN,BLUE,YELLOW,PINK,CYAN,ORANGE]# change bullets to rects
+RED = (255,0,0)
+colours = ['red', 'green', 'blue', 'yellow', 'pink', 'cyan', 'orange'] # change bullets to rects
 
 FPS = 60
-
 
 # can move to class
 speed = 1
@@ -60,7 +53,6 @@ long_move_speed = 0.5
 long_vert_max = 10
 long_hor_max = 10
 
-
 mg_speed = 7
 mg_bullets = []
 mg_tl = 7
@@ -71,25 +63,27 @@ enemy_bullets = []
 eb_speed = 3
 eb_dmg = 5
 
-heart_img=pygame.image.load(f"heart.png").convert_alpha()
+heart_img = pygame.image.load(f"heart.png").convert_alpha()
 heart_img = pygame.transform.scale(heart_img, (50, 50))
-hearts =5
+hearts = 5
 
 score = 0
 
 EVENT = ""
-#EVENTS=: START.MENU,PLAY,LOGIN,SIGNUP,SETTINGS,GAMEOVER,GAME
 
+
+# EVENTS=: START.MENU,PLAY,LOGIN,SIGNUP,SETTINGS,GAMEOVER,GAME
 
 
 class Bullets:
-    def __init__(self, pos_x, pos_y, angle, time,bullet_speed,colour):
-        img = pygame.image.load("mgbullets.png").convert_alpha()
+    def __init__(self, pos_x, pos_y, angle, time, bullet_speed, colour):
+        self.colour = colour
+        img = pygame.image.load(f"{self.colour}bullet.png").convert_alpha()
         self.image = pygame.transform.rotate(img, angle)
         self.x = pos_x
         self.y = pos_y
-        self.rect = self.image.get_rect()# maybe issuw
-        self.colour = colour
+        self.rect = self.image.get_rect()  # maybe issuw
+
 
         self.time = time
 
@@ -115,14 +109,14 @@ class Fighters:
         self.xvelo = xvelo
         self.yvelo = yvelo
 
-
-player = Fighters(500, 500, "XO", 0, 0, (34, 50))
-enemy = Fighters(400, 400, "eneymy", 0, 0, (50, 50))
+##
+player = Fighters((1/10)*width, height//2, "XO", 0, 0, (34, 50))
+enemy = Fighters((9/10)*width, height//2, "eneymy", 0, 0, (50, 50))
 
 
 def login_menu():
     click = False
-    global EVENT, logged_username
+    global EVENT, logged_username,config ## check if settings save
     password_dots = ""
     password = ""
     username = ""
@@ -199,11 +193,11 @@ def login_menu():
                     s.connect(server_address)
                     data = pickle.dumps(["login", username, password])
                     s.send(data)
-                    data = s.recv(2000)  # Receive up to 1024 bytes of data
+                    data = s.recv(1024)  # Receive up to 1024 bytes of data
                     received_data = pickle.loads(data)
                     s.close()
                     if received_data[0] == "True":
-                        print(received_data)
+                        #print(received_data)
                         # print("received")
                         EVENT = "MENU"
                         logged_username = username
@@ -381,7 +375,7 @@ def signup_menu():
                         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         s.connect(server_address)
                         print("connected")
-                        data = pickle.dumps(["signup", username, password, config, 0])
+                        data = pickle.dumps(["signup", username,password, config, 0])
                         s.send(data)
                         print("sent")
                         data = s.recv(1024)  # Receive up to 1024 bytes of data
@@ -518,7 +512,7 @@ def menu():
     global EVENT
     button_text = []
 
-    try:
+    try:## return all info just use user use for stats
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(server_address)
         data = pickle.dumps(["fetch", logged_username])
@@ -544,10 +538,12 @@ def menu():
         Settings_button_text = button_font.render("SETTINGS", 1, WHITE)
         Settings_button = pygame.Rect((width // 2) - ((Settings_button_text.get_width() + 20) // 2), (height // 2) - ((play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30, Settings_button_text.get_width() + 20, Settings_button_text.get_height() + 20)
 
+        ## add stats button
+
         Signout_button_text = button_font.render("Sign Out", 1, WHITE)
         Signout_button = pygame.Rect(width - Signout_button_text.get_width() - 20, height - Signout_button_text.get_height() - 20, Signout_button_text.get_width() + 20, Signout_button_text.get_height() + 20)
 
-        account_text = button_font.render(f"Username: {logged_username} , hours:{received_data}", 1, WHITE)  # fetch date creted to make hrs palyed and fetch highest score
+        account_text = button_font.render(f"Username: {logged_username} , hours:{received_data[0][:-6]}", 1, WHITE)  # fetch date creted to make hrs palyed and fetch highest score
 
         button_text.append(play_button_text)
         button_text.append(Settings_button_text)
@@ -597,7 +593,7 @@ def menu_draw(button_text, Title_text, account_text, *args):
 
 def apply_config(config):
     global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key
-    print(config)
+    #print(config)
     choices = config.split(",")
     if choices[0] == "1":
         width = 1920
@@ -628,12 +624,13 @@ def apply_config(config):
     down_key = int(choices[3])
     right_key = int(choices[4])
 
-def game_over_menu(run_duration):
-    global EVENT,score,hearts
+
+def game_over_menu(run_duration,bullets_shot):
+    global EVENT, score, hearts,mg_bullets,enemy_bullets
     button_text = []
     running = True
     click = False
-    while running:#display runtime score maybe shots fired
+    while running:  # display runtime score maybe shots fired
 
         for event in pygame.event.get():
 
@@ -646,8 +643,20 @@ def game_over_menu(run_duration):
 
         Title_text = TITLE_font.render("GAME OVER", 1, RED)
 
+        a = str(run_duration.total_seconds())[:-7]
+        k= int(a)
+
+        d = k // 86400
+        h = k//3600 - (k // 86400) *24
+        m = k//60 -(k // 3600) *60
+        s = k -(k // 3600) *60
+
+        run_duration_text = button_font.render(f"Days: {d} Hours: {h} Minutes: {m} Seconds: {s}",1,WHITE)
+        bullet_count_text = button_font.render(f"You shot {bullets_shot} bullets",1,WHITE)
+        score_text = button_font.render(f"Score: {score}",1,WHITE)
+
         play_again_button_text = button_font.render("PLAY AGAIN", 1, WHITE)
-        play_again_button = pygame.Rect((width // 2) - ((play_again_button_text.get_width()+20) // 2),(height // 2) - ((play_again_button_text.get_height()+20) // 2),play_again_button_text.get_width()+20,play_again_button_text.get_height()+20)
+        play_again_button = pygame.Rect((width // 2) - ((play_again_button_text.get_width() + 20) // 2), (height // 2) - ((play_again_button_text.get_height() + 20) // 2), play_again_button_text.get_width() + 20, play_again_button_text.get_height() + 20)
 
         button_text.append(play_again_button_text)
 
@@ -655,23 +664,24 @@ def game_over_menu(run_duration):
 
             if play_again_button.collidepoint((mx, my)):
                 EVENT = "GAME"
-        if EVENT=="GAME":
+        if EVENT == "GAME":
             score = 0
             hearts = 5
-            mg_bullets =[]
-            enemy_bullets=[]
-            player.xvelo =0
-            player.yvelo=0
-            enemy.xvelo=0
-            enemy.yvelo=0
-            player.rect.x =
-            player.rect.y = 
-            enemy.rect.x =
-            enemy.rect.y=
+            mg_bullets = []
+            enemy_bullets = []
+            player.xvelo = 0
+            player.yvelo = 0
+            enemy.xvelo = 0
+            enemy.yvelo = 0
+            player.rect.x =(1/10)*width
+            player.rect.y =height//2
+            enemy.rect.x =(9/10)*width
+            enemy.rect.y =height//2
             main()
-        game_over_menu_draw(button_text,Title_text,play_again_button)
+        game_over_menu_draw(button_text, Title_text,run_duration_text,bullet_count_text,score_text, play_again_button)
 
-def game_over_menu_draw(button_text,Title_text, *args):
+
+def game_over_menu_draw(button_text, Title_text,run_duration_text,bullet_count_text,score_text, *args):
     buttons = list(args)
     screen.fill(BLACK)
     for i in range(len(buttons)):
@@ -679,9 +689,15 @@ def game_over_menu_draw(button_text,Title_text, *args):
             break
         pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
         screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2, buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
-    screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, height // 5))
+    screen.blit(Title_text, ((width- Title_text.get_width()) // 2  , height // 5))
+    screen.blit(run_duration_text, ((width- run_duration_text.get_width())   // 2, height *(6/10)))
+    screen.blit(bullet_count_text, ((width- bullet_count_text.get_width())  // 2, height *(7/10)))
+    screen.blit(score_text, ((width- score_text.get_width()) // 2, height *(8/10)))
 
-    pygame.display.update()
+
+    pygame.display.update()##
+
+
 def settings_menu():
     global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key, EVENT, config
     up_key_collection = False
@@ -751,6 +767,7 @@ def settings_menu():
         down_key_text = button_font.render("Down:", 1, WHITE)
         right_key_text = button_font.render("Right:", 1, WHITE)
 
+
         up_key_input_box = pygame.Rect(110 + up_key_text.get_width(), 100 + Window_Size_text.get_height() + Window_Size_1_button_text.get_height() + 30, 50, 35)
         left_key_input_box = pygame.Rect(110 + left_key_text.get_width(), 100 + Window_Size_text.get_height() + Window_Size_1_button_text.get_height() + 32 + 40, 50, 35)
         down_key_input_box = pygame.Rect(110 + down_key_text.get_width(), 100 + Window_Size_text.get_height() + Window_Size_1_button_text.get_height() + 64 + 50, 50, 35)
@@ -786,7 +803,7 @@ def settings_menu():
                     received_data = data.decode('utf-8')
                     if received_data == "True":
                         print("received")
-                        print(config)
+                        #print(config)
                     s.close()
                 except:
                     pass
@@ -884,6 +901,54 @@ def settings_menu_draw(button_text, Window_Size_text, up_key_text, left_key_text
 
     pygame.display.update()
 
+def pause_menu():##
+    global EVENT
+    running = True
+    button_text = []
+    click = False
+    while running:
+        pause_text = TITLE_font.render("Paused", 1, WHITE)
+
+        x_button_text = button_font.render("X", 1, WHITE)
+        x_button = pygame.Rect(0, 0, x_button_text.get_width() + 20, x_button_text.get_height() + 20)
+
+        button_text.append(x_button_text)
+
+        pause_menu_draw(button_text,pause_text,x_button)
+
+        mx, my = pygame.mouse.get_pos()
+
+        if click:
+            if x_button.collidepoint((mx, my)):
+                running = False
+                EVENT = ""
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                    EVENT = ""
+        click = False
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+def pause_menu_draw(button_text,pause_text,*args):
+    screen.fill(BLACK)
+    buttons = list(args)
+    screen.blit(pause_text,(((width-pause_text.get_width())//2),(height-pause_text.get_height())//2))
+
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
+        screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2, buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
+
+    pygame.display.update()
+
+
+
+
 
 def player_movement(player):
     keys = pygame.key.get_pressed()
@@ -917,29 +982,30 @@ def keep_on_screeen(player):
         player.rect.x += width
     if player.rect.y + 25 >= height:
         player.rect.y = height - 25 - 7
-    if player.rect.y  <= 25:
+    if player.rect.y <= 25:
         player.rect.y = 27
 
 
-def shooting(mg_bullets, angle,x):
+def shooting(mg_bullets, angle,bullets_shot):
     buttons = pygame.mouse.get_pressed()
     if buttons[0]:
-        
-        mg_bullets.append(Bullets(player.rect.x+17, player.rect.y+25, angle, time.time(),mg_speed),choice(colours))
+        mg_bullets.append(Bullets(player.rect.x + 17, player.rect.y + 25, angle, datetime.now(), mg_speed, random.choice(colours)))
+        bullets_shot+=1
+    return bullets_shot
 
 
-def bullet_stuff(mg_bullets,enemy_bullets):
-    global hearts, time_last_damaged, EVENT
+def bullet_stuff(mg_bullets, enemy_bullets):
+    global hearts, time_last_damaged, EVENT,score
     for i in mg_bullets:
-        if i.x < enemy.rect.x + 48 and i.x > enemy.rect.x  and i.y < enemy.rect.y + 48 and i.y > enemy.rect.y :
+        if i.x < enemy.rect.x + 48 and i.x > enemy.rect.x and i.y < enemy.rect.y + 48 and i.y > enemy.rect.y:
             enemy_HIT = True
-            score += 100
+            score += 10
         else:
             enemy_HIT = False
 
         i.x += i.xvelo
         i.y += i.yvelo
-        if i.y > height or i.y < 0 or time.time() - i.time > mg_tl or enemy_HIT:
+        if i.y > height or i.y < 0 or datetime.now() - i.time > timedelta(seconds=mg_tl) or enemy_HIT:
             mg_bullets.remove(i)
         if i.x > width:
             i.x -= width
@@ -948,88 +1014,86 @@ def bullet_stuff(mg_bullets,enemy_bullets):
     for i in enemy_bullets:
         i.x += i.xvelo
         i.y += i.yvelo
-        if i.x < player.rect.x  + 32 and i.x > player.rect.x+2   and i.y < player.rect.y + 48 and i.y > player.rect.y+2 :
+        if i.x < player.rect.x + 32 and i.x > player.rect.x + 2 and i.y < player.rect.y + 48 and i.y > player.rect.y + 2:
             player_HIT = True
             hearts -= 1
 
         else:
             player_HIT = False
-        if i.y > height or i.y < 0 or i.x<0 or i.x>width or player_HIT:
+        if i.y > height or i.y < 0 or i.x < 0 or i.x > width or player_HIT:
             enemy_bullets.remove(i)
         if len(mg_bullets) > max_mg:
             del mg_bullets[0]
 
 
-
-def draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets,score_text):
+def draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets,run_timer, score_text):
     screen.fill(BLACK)
 
     screen.blit(enemy.img, (enemy.rect.x, enemy.rect.y))
 
     screen.blit(rot_image, rot_image_rect.topleft)
-    
-    screen.blit(score_text,width-score_text.get_width(),score_text.get_height())
-    
+
+    screen.blit(score_text, (width - score_text.get_width(), score_text.get_height()))
+    screen.blit(run_timer, (10, run_timer.get_height()))
+
     for i in mg_bullets:
         screen.blit(i.image, (i.x, i.y))
-        pygame.draw.rect(screen,i.colour,i.rect)##
+
     for i in enemy_bullets:
-        screen.blit(i.image, (i.x-3, i.y))
+        screen.blit(i.image, (i.x - 3, i.y))
 
-    #pygame.draw.rect(screen, WHITE, enemy.rect)
-    for i in range(0,hearts):
-        screen.blit(heart_img,(i*50,height-50))
+    #pygame.draw.rect(screen, WHITE, rot_image_rect)
+    for i in range(0, hearts):
+        screen.blit(heart_img, (i * 50, height - 50))
 
-    pygame.draw.circle(screen, WHITE, (player.rect.x+17, player.rect.y+25), 5)
+    pygame.draw.circle(screen, WHITE, (player.rect.x + 17, player.rect.y + 25), 5)
 
     pygame.display.update()
 
 
 def cross_shooting(enemy_bullets, enemy):
     for i in range(0, 271, 90):
-        enemy_bullets.append(Bullets(enemy.rect.x+25, enemy.rect.y+25, i, 0, eb_speed))
+        enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, i, 0, eb_speed,"white"))
 
 
 def diag_shooting(enemy_bullets, enemy):
     for i in range(45, 316, 90):
-        enemy_bullets.append(Bullets(enemy.rect.x+25, enemy.rect.y+25, i, 0, eb_speed))
-
+        enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, i, 0, eb_speed,"white"))
 
 
 def star_shooting(enemy_bullets, enemy):
     for i in range(0, 316, 45):
-        enemy_bullets.append(Bullets(enemy.rect.x+25, enemy.rect.y+25, i, 0, eb_speed))
+        enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, i, 0, eb_speed,"white"))
 
 
-def spiral_shooting(enemy_bullets, enemy,x):
+def spiral_shooting(enemy_bullets, enemy, x):
+    if ((x + 25) % 25) not in range(15,25):
 
-    if ((x+25)%25) not in [15,16,17,18,19,20,21,22,23,24]:#range(16,25):
+        enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, ((x + 25) % 25) * 24, 0, eb_speed,"white"))
 
-        enemy_bullets.append(Bullets(enemy.rect.x+25, enemy.rect.y+25, ((x+25)%25)*24, 0, eb_speed))
-
-
+def aimbot(enemy_bullets, player,enemy):
 
 
-def long_move_mech(start,x,enemy_angle):# fix ts so it works on any res
-    if x<start:
-        x+=3600
+    dx, dy =player.rect.x-enemy.rect.x, player.rect.y-enemy.rect.y
+    angle = math.degrees(math.atan2(dy, -dx)) + 90
+    if angle < 0:
+        angle += 360
+    enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, int(angle), 0, eb_speed, "white"))
 
-    if x-start <60:
 
+
+def long_move_mech(start, x, enemy_angle):  # fix ts so it works on any res
+
+
+    if x - start < 60:
 
         enemy.xvelo += long_move_speed * math.sin(2 * math.pi * (enemy_angle / 360))
         enemy.yvelo += long_move_speed * -math.cos(2 * math.pi * (enemy_angle / 360))
-    elif x - start ==120:
+    elif x - start == 120:
         return False
-
-
-
 
     enemy.xvelo *= 0.97
     enemy.yvelo *= 0.97
-
-
-
 
     enemy.rect.x += enemy.xvelo
     enemy.rect.y += enemy.yvelo
@@ -1043,19 +1107,19 @@ def long_move_mech(start,x,enemy_angle):# fix ts so it works on any res
         enemy.yvelo = -long_vert_max
     return True
 
-def short_move_mech(x,a,b,c):
 
-    if (x+299)%300==0:
+def short_move_mech(x, a, b, c):
+    if (x + 299) % 300 == 0:
         enemy.rect.x += 200 * math.cos(2 * math.pi * (a / 360))
         enemy.rect.y += 200 * math.sin(2 * math.pi * (a / 360))
 
         return True
-    elif (x+299)%300==100:
+    elif (x + 299) % 300 == 100:
         enemy.rect.x += 200 * math.cos(2 * math.pi * (b / 360))
         enemy.rect.y += 200 * math.sin(2 * math.pi * (b / 360))
 
         return True
-    elif (x+299)%300==200:
+    elif (x + 299) % 300 == 200:
 
         enemy.rect.x += 200 * math.cos(2 * math.pi * (c / 360))
         enemy.rect.y += 200 * math.sin(2 * math.pi * (c / 360))
@@ -1063,10 +1127,13 @@ def short_move_mech(x,a,b,c):
         return False
     else:
         return True
+
+
 def main():
     global EVENT
     clock = pygame.time.Clock()
-    #login_signup_menu()
+    if EVENT != "GAME":
+        login_signup_menu()
     run = True
     long_move = False
     short_move = False
@@ -1075,8 +1142,9 @@ def main():
     star_shoot = False
     spiral_shoot = False
     shoot = False
-    MOVING =False
-    run_start = datetime.datetime()
+    MOVING = False
+    run_start = datetime.now()
+    bullets_shot = 0
     x = 0
     while run:
         clock.tick(FPS)
@@ -1085,22 +1153,17 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pause_menu()
 
+
+        run_duration = datetime.now() - run_start
         if EVENT == "GAMEOVER":
-            run_duration = datetime.datetime - run_start
-            game_over_menu(run_duration)#print stats
-        #maybe dont need this so cant stop cappig x at 3600 go game over to use 
-        
-        if x == 3600:  # 1 min
-            x = 0
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect(server_address)
-                data = pickle.dumps(["hours", logged_username])
-                s.send(data)
-                s.close()
-            except:
-                pass
+
+            game_over_menu(run_duration,bullets_shot)  # print stats
+
+        run_timer = button_font.render(f"{run_duration.total_seconds()}"[:-4], 1, WHITE)
 
 
 
@@ -1110,80 +1173,72 @@ def main():
 
             start = x
             shoot_time = random.randint(3, 7)
-            if shoot_type ==0:
-                cross_shoot =True
+            if shoot_type == 0:
+                cross_shoot = True
 
 
-            elif shoot_type==1:
+            elif shoot_type == 1:
                 diag_shoot = True
 
-            elif shoot_type==2:
+            elif shoot_type == 2:
                 star_shoot = True
-            elif shoot_type==3:
+            elif shoot_type == 3:
                 spiral_shoot = True
             shoot = True
 
-        if cross_shoot ==True:
-            timer = x
+        if cross_shoot == True:
+
             if x % 60 == 0:
                 cross_shooting(enemy_bullets, enemy)
-            if timer<start:
-                timer+=3600
-            if (timer-start) == shoot_time*60:
+
+            if (x) == shoot_time * 60:
                 shoot = False
                 cross_shoot = False
 
-        elif diag_shoot ==True:
-            timer = x
+        elif diag_shoot == True:
+
             if x % 60 == 0:
                 diag_shooting(enemy_bullets, enemy)
-            if timer<start:
-                timer+=3600
-            if (x-start) == shoot_time*60:
+
+            if x == shoot_time * 60:
                 shoot = False
                 diag_shoot = False
 
-        elif star_shoot ==True:
-            timer = x
-            if x%60==0:
+        elif star_shoot == True:
+
+            if x % 60 == 0:
                 star_shooting(enemy_bullets, enemy)
-            if timer<start:
-                timer+=3600
-            if (timer-start) == shoot_time*60:
+
+            if x == shoot_time * 60:
                 shoot = False
                 star_shoot = False
 
-        elif spiral_shoot ==True:
-            timer = x
-            spiral_shooting(enemy_bullets, enemy,x)
-            if timer<start:
-                timer+=3600
-            if (timer-start) == shoot_time*60:
+        elif spiral_shoot == True:
+
+            spiral_shooting(enemy_bullets, enemy, x)
+
+            if x == shoot_time * 60:
                 shoot = False
                 spiral_shoot = False
+        if x % 15 == 0:
+            aimbot(enemy_bullets, player,enemy)
 
-
-
-
-
-        #0 no move 1 long move #short move
-        #transfereable between reses
+        # 0 no move 1 long move #short move
+        # transfereable between reses
         if not MOVING:
             move_type = random.randint(0, 1)
 
-
-
-            if move_type==1:
+            if move_type == 1:
                 long_move = True
-                if enemy.rect.y >755:
-                    if random.randint(0, 1) ==0:
+                if enemy.rect.y > 755:
+                    if random.randint(0, 1) == 0:
                         enemy_angle = random.randint(0, 90)
 
                     else:
                         enemy_angle = random.randint(270, 360)
 
 
-                elif enemy.rect.y<250:
+                elif enemy.rect.y < 250:
                     enemy_angle = random.randint(90, 270)
 
                 else:
@@ -1191,45 +1246,52 @@ def main():
 
                 start = x
 
-            elif move_type==0:
+            elif move_type == 0:
                 short_move = True
 
-                a,b,c = random.randint(0, 360),random.randint(0, 360),random.randint(0, 360)
+                a, b, c = random.randint(0, 360), random.randint(0, 360), random.randint(0, 360)
         if long_move == True:
-
-            long_move = long_move_mech(start,x,enemy_angle)
+            long_move = long_move_mech(start, x, enemy_angle)
             MOVING = long_move
 
         if short_move == True:
-
-            short_move=short_move_mech(x,a,b,c)
+            short_move = short_move_mech(x, a, b, c)
             MOVING = short_move
 
-
         mx, my = pygame.mouse.get_pos()
+
         dx, dy = mx - player.rect.x, my - player.rect.y
         angle = math.degrees(math.atan2(-dy, dx)) - 90
+
+
 
         score_text = button_font.render(f"Score: {score}", 1, WHITE)
 
         rot_image = pygame.transform.rotate(player.img, angle)
-        rot_image_rect = rot_image.get_rect(center=(player.rect.x+17,player.rect.y+25))
+        rot_image_rect = rot_image.get_rect(center=(player.rect.x + 17, player.rect.y + 25))
 
-        shooting(mg_bullets, angle)
+        bullets_shot = shooting(mg_bullets, angle,bullets_shot)
         keep_on_screeen(player)
         keep_on_screeen(enemy)
 
-
-        bullet_stuff(mg_bullets,enemy_bullets)
+        bullet_stuff(mg_bullets, enemy_bullets)
 
         if hearts == 0:
+            
             EVENT = "GAMEOVER"
+            #add other stats to db, add parameter for playtime change libary to datetime and can just add and splice to get hrs to display
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect(server_address)
+                data = pickle.dumps(["hours", logged_username,str(run_duration)[:-7],score,bullets_shot])
+                s.send(data)
+                s.close()
 
+            except:
+                pass
+            
         player_movement(player)
-        draw(rot_image, rot_image_rect, mg_bullets,enemy_bullets,score_text)
-
-
-
+        draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets,run_timer, score_text)
 
 
 if __name__ == "__main__":
