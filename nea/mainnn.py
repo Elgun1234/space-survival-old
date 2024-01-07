@@ -523,9 +523,12 @@ def menu():
     except:
         received_data = "didnt work :/"
         pass
+    received_data = received_data.strip("()")
+    received_data = received_data.split(",")
 
     running = True
     while running:
+
         if pygame.mouse.get_pressed()[0]:
             click = True
 
@@ -543,7 +546,7 @@ def menu():
         Signout_button_text = button_font.render("Sign Out", 1, WHITE)
         Signout_button = pygame.Rect(width - Signout_button_text.get_width() - 20, height - Signout_button_text.get_height() - 20, Signout_button_text.get_width() + 20, Signout_button_text.get_height() + 20)
 
-        account_text = button_font.render(f"Username: {logged_username} , hours:{received_data[0][:-6]}", 1, WHITE)  # fetch date creted to make hrs palyed and fetch highest score
+        account_text = button_font.render(f"Username: {logged_username} , hours:{received_data[0][1:-7]}", 1, WHITE)  # fetch date creted to make hrs palyed and fetch highest score
 
         button_text.append(play_button_text)
         button_text.append(Settings_button_text)
@@ -586,7 +589,7 @@ def menu_draw(button_text, Title_text, account_text, *args):
         pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
         screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2, buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
     screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, height // 5))
-    screen.blit(account_text, (width - button_text[2].get_width() - 20 - account_text.get_width(), height - account_text.get_height()))
+    screen.blit(account_text, (width - button_text[2].get_width() - 20 - account_text.get_width()-20, height - account_text.get_height()))
 
     pygame.display.update()
 
@@ -1277,7 +1280,7 @@ def main():
         bullet_stuff(mg_bullets, enemy_bullets)
 
         if hearts == 0:
-            
+
             EVENT = "GAMEOVER"
             #add other stats to db, add parameter for playtime change libary to datetime and can just add and splice to get hrs to display
             try:
@@ -1289,7 +1292,7 @@ def main():
 
             except:
                 pass
-            
+
         player_movement(player)
         draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets,run_timer, score_text)
 
