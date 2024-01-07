@@ -59,7 +59,7 @@ def update_info(received_data):## datetimme
     cur.execute("SELECT playtime,total_score,runs,bullets_shot ,highest_score FROM Information WHERE Username=?",(received_data[1],))
     info = cur.fetchone()
 
-    new_time = string_2_timedelta(info[0]) + string_2_timedelta(received_data[2])
+    new_time = string_2_timedelta(info[0]) + string_2_timedelta(received_data[2]) 
 
     new_total = info[1]+received_data[3]
     print(info[2])
