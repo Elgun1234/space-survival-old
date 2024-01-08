@@ -602,6 +602,71 @@ def menu_draw(button_text, Title_text, account_text, *args):
 
     pygame.display.update()
 
+def stats_menu():
+    click = False
+    global EVENT
+    button_text = []
+    try:## return all info just use user use for stats
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(server_address)
+        data = pickle.dumps(["fetch", logged_username])
+        s.send(data)
+        data = s.recv(1024)
+        received_data = data.decode('utf-8')
+        s.close()
+    except:
+        received_data = "didnt work :/"
+        pass
+    received_data = received_data.strip("()")
+    received_data = received_data.split(",")
+    
+    running = True
+    while running:
+
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+
+        mx, my = pygame.mouse.get_pos()
+
+        Title_text = TITLE_font.render("STATS", 1, WHITE)
+
+        username_text = button_font.render(f"USERNAME: {logged_username}",1,WHITE)
+        playtime_text = button_font.render(f"PLAYTIME: {received_data[0][1:-1]}",1,WHITE)
+        total_score_text = button_font.render(f"TOTAL SCORE: {received_data[1]}",1,WHITE)
+        runs_text = button_font.render(f"RUNS: {received_data[2]}",1,WHITE)
+        bullets_shot_text = button_font.render(f"BULLETS SHOT: {received_data[3]}",1,WHITE)
+        highest_score_text = button_font.render(f"HIGHEST SCORE: received_data[4]}",1,WHITE)
+
+        x_button_text = button_font.render("X", 1, WHITE)
+        x_button = pygame.Rect(width - 100 - (x_button_text.get_width() + 20), 100, x_button_text.get_width() + 20, x_button_text.get_height() + 20)
+
+        if click:
+            if x_button.collidepoint((mx, my)):
+                running = False
+                EVENT = ""
+
+        button_text.append(x_button_text)
+
+        stats_menu_draw(button_text, Title_text,username_text,playtime_text,total_score_text,runs_text,bullets_shot_text,highest_score_text,x_button)
+
+def stats_menu_draw(button_text, Title_text,username_text,playtime_text,total_score_text,runs_text,bullets_shot_text,highest_score_text,*args):## fix lol
+    buttons = list(args)
+    screen.blit(stars, (0, 0))
+    pygame.draw.rect(screen, BLACK, (100, 100, width - 200, height - 200))
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
+        screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2, buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
+    screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, 100))
+    screen.blit(username_text,110,
+    screen.blit(playtime_text,110,Title_text.get_height()+30+username_text.get_height()+10)  
+    screen.blit(total_score_text,110,Title_text.get_height()+30+playtime_text.get_height()+username_text.get_height()+20) 
+    screen.blit(runs_text,110,Title_text.get_height()+30+total_score_text.get_height()+playtime_text.get_height()+username_text.get_height()+30) 
+    screen.blit(bullets_shot_text,110,Title_text.get_height()+30+runs_text.get_height()+total_score_text.get_height()+playtime_text.get_height()+username_text.get_height()+40) 
+    screen.blit(highest_score_text,110,Title_text.get_height()+30+bullets_shot_text.get_height()+runs_text.get_height()+total_score_text.get_height()+playtime_text.get_height()+username_text.get_height()+50) 
+
+    pygame.display.update()
 
 def apply_config(config):
     global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key
