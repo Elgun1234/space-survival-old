@@ -734,27 +734,37 @@ def game_over_menu(run_duration,bullets_shot):
         play_again_button_text = button_font.render("PLAY AGAIN", 1, WHITE)
         play_again_button = pygame.Rect((width // 2) - ((play_again_button_text.get_width() + 20) // 2), (height // 2) - ((play_again_button_text.get_height() + 20) // 2), play_again_button_text.get_width() + 20, play_again_button_text.get_height() + 20)
 
+        exit_button_text = button_font.render("EXIT", 1, WHITE)
+        exit_button = pygame.Rect((width // 2) - ((play_again_button_text.get_width() + 20) // 2),play_again_button.rect.y +exit_button_text.get_height()+20,exit_button_text.get_width() + 20, exit_button_text.get_height() + 20)
+
         button_text.append(play_again_button_text)
+        button_text.append(exit_button_text)
+
+        score = 0
+        hearts = 5
+        mg_bullets = []
+        enemy_bullets = []
+        player.xvelo = 0
+        player.yvelo = 0
+        enemy.xvelo = 0
+        enemy.yvelo = 0
+        player.rect.x =(1/10)*width
+        player.rect.y =height//2
+        enemy.rect.x =(9/10)*width
+        enemy.rect.y =height//2
 
         if click:
 
             if play_again_button.collidepoint((mx, my)):
                 EVENT = "GAME"
-        if EVENT == "GAME":
-            score = 0
-            hearts = 5
-            mg_bullets = []
-            enemy_bullets = []
-            player.xvelo = 0
-            player.yvelo = 0
-            enemy.xvelo = 0
-            enemy.yvelo = 0
-            player.rect.x =(1/10)*width
-            player.rect.y =height//2
-            enemy.rect.x =(9/10)*width
-            enemy.rect.y =height//2
-            main()
-        game_over_menu_draw(button_text, Title_text,run_duration_text,bullet_count_text,score_text, play_again_button)
+                main()
+            if exit_button.collidepoint((mx, my)):
+                EVENT = "MENU"
+                main()
+        
+            
+            
+        game_over_menu_draw(button_text, Title_text,run_duration_text,bullet_count_text,score_text, play_again_button,exit_button)
 
 
 def game_over_menu_draw(button_text, Title_text,run_duration_text,bullet_count_text,score_text, *args):
@@ -1208,7 +1218,9 @@ def short_move_mech(x, a, b, c):
 def main():
     global EVENT
     clock = pygame.time.Clock()
-    if EVENT != "GAME":
+    if EVENT == "MENU":
+        menu()
+    elif EVENT != "GAME":
         login_signup_menu()
     run = True
     long_move = False
