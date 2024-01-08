@@ -39,7 +39,7 @@ TITLE = "SPACE FLY SHOOT AI GAME"
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255,0,0)
-colours = ['red', 'green', 'blue', 'yellow', 'pink', 'cyan', 'orange'] # change bullets to rects
+colours = ['red', 'green', 'blue', 'yellow', 'pink', 'cyan', 'orange'] 
 
 FPS = 60
 
@@ -72,7 +72,7 @@ score = 0
 EVENT = ""
 
 
-# EVENTS=: START.MENU,PLAY,LOGIN,SIGNUP,SETTINGS,GAMEOVER,GAME
+# EVENTS=: START.MENU,PLAY,LOGIN,SIGNUP,SETTINGS,GAMEOVER,GAME,""
 
 
 class Bullets:
@@ -82,7 +82,7 @@ class Bullets:
         self.image = pygame.transform.rotate(img, angle)
         self.x = pos_x
         self.y = pos_y
-        self.rect = self.image.get_rect()  # maybe issuw
+        
 
 
         self.time = time
@@ -109,14 +109,14 @@ class Fighters:
         self.xvelo = xvelo
         self.yvelo = yvelo
 
-##
+
 player = Fighters((1/10)*width, height//2, "XO", 0, 0, (34, 50))
 enemy = Fighters((9/10)*width, height//2, "eneymy", 0, 0, (50, 50))
 
 
 def login_menu():
     click = False
-    global EVENT, logged_username,config ## check if settings save
+    global EVENT, logged_username
     password_dots = ""
     password = ""
     username = ""
@@ -193,16 +193,16 @@ def login_menu():
                     s.connect(server_address)
                     data = pickle.dumps(["login", username, password])
                     s.send(data)
-                    data = s.recv(1024)  # Receive up to 1024 bytes of data
+                    data = s.recv(1024)  
                     received_data = pickle.loads(data)
                     s.close()
                     if received_data[0] == "True":
-                        #print(received_data)
-                        # print("received")
+                        
+                        print("received")
                         EVENT = "MENU"
                         logged_username = username
                         apply_config(received_data[1])
-                        config = received_data[1]
+                        
 
                     else:
                         wrong_userpass_text = detail_font.render("Wrong user or pass", 1, RED)
@@ -512,7 +512,7 @@ def menu():
     global EVENT
     button_text = []
 
-    try:## return all info just use user use for stats
+    try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(server_address)
         data = pickle.dumps(["fetch", logged_username])
@@ -541,15 +541,14 @@ def menu():
         Settings_button_text = button_font.render("SETTINGS", 1, WHITE)
         Settings_button = pygame.Rect((width // 2) - ((Settings_button_text.get_width() + 20) // 2), (height // 2) - ((play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30, Settings_button_text.get_width() + 20, Settings_button_text.get_height() + 20)
 
-        ## add stats button
+        ## stats?
         stats_button_text = button_font.render("STATS",1,WHITE)
         stats_button = pygame.Rect((width-stats_button_text.get_width())//2,(height // 2) - ((play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30 ,stats_button_text.get_width() +20,stats_button_text.get_height+20)
 
         Signout_button_text = button_font.render("Sign Out", 1, WHITE)
         Signout_button = pygame.Rect(width - Signout_button_text.get_width() - 20, height - Signout_button_text.get_height() - 20, Signout_button_text.get_width() + 20, Signout_button_text.get_height() + 20)
 
-        account_text = button_font.render(f"Username: {logged_username} , hours:{received_data[0][1:-7]}", 1, WHITE)  # fetch date creted to make hrs palyed and fetch highest score
-
+        account_text = button_font.render(f"Username: {logged_username} , hours:{received_data[0][1:-7]}", 1, WHITE)  
         button_text.append(play_button_text)
         button_text.append(Settings_button_text)
         button_text.append(Signout_button_text)
@@ -606,7 +605,7 @@ def stats_menu():
     click = False
     global EVENT
     button_text = []
-    try:## return all info just use user use for stats
+    try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(server_address)
         data = pickle.dumps(["fetch", logged_username])
@@ -649,7 +648,7 @@ def stats_menu():
 
         stats_menu_draw(button_text, Title_text,username_text,playtime_text,total_score_text,runs_text,bullets_shot_text,highest_score_text,x_button)
 
-def stats_menu_draw(button_text, Title_text,username_text,playtime_text,total_score_text,runs_text,bullets_shot_text,highest_score_text,*args):## fix lol
+def stats_menu_draw(button_text, Title_text,username_text,playtime_text,total_score_text,runs_text,bullets_shot_text,highest_score_text,*args):## 
     buttons = list(args)
     screen.blit(stars, (0, 0))
     pygame.draw.rect(screen, BLACK, (100, 100, width - 200, height - 200))
@@ -670,7 +669,7 @@ def stats_menu_draw(button_text, Title_text,username_text,playtime_text,total_sc
 
 def apply_config(config):
     global width, height, screen, stars, TITLE_font, up_key, left_key, down_key, right_key
-    #print(config)
+   
     choices = config.split(",")
     if choices[0] == "1":
         width = 1920
@@ -707,7 +706,7 @@ def game_over_menu(run_duration,bullets_shot):
     button_text = []
     running = True
     click = False
-    while running:  # display runtime score maybe shots fired
+    while running:  
 
         for event in pygame.event.get():
 
@@ -772,7 +771,7 @@ def game_over_menu_draw(button_text, Title_text,run_duration_text,bullet_count_t
     screen.blit(score_text, ((width- score_text.get_width()) // 2, height *(8/10)))
 
 
-    pygame.display.update()##
+    pygame.display.update()
 
 
 def settings_menu():
@@ -880,7 +879,7 @@ def settings_menu():
                     received_data = data.decode('utf-8')
                     if received_data == "True":
                         print("received")
-                        #print(config)
+                        
                     s.close()
                 except:
                     pass
@@ -978,7 +977,7 @@ def settings_menu_draw(button_text, Window_Size_text, up_key_text, left_key_text
 
     pygame.display.update()
 
-def pause_menu():##
+def pause_menu():
     global EVENT
     running = True
     button_text = []
@@ -1238,7 +1237,7 @@ def main():
         run_duration = datetime.now() - run_start
         if EVENT == "GAMEOVER":
 
-            game_over_menu(run_duration,bullets_shot)  # print stats
+            game_over_menu(run_duration,bullets_shot)
 
         run_timer = button_font.render(f"{run_duration.total_seconds()}"[:-4], 1, WHITE)
 
@@ -1300,7 +1299,7 @@ def main():
         if x % 15 == 0:
             aimbot(enemy_bullets, player,enemy)
 
-        # 0 no move 1 long move #short move
+        
         # transfereable between reses
         if not MOVING:
             move_type = random.randint(0, 1)
@@ -1356,7 +1355,7 @@ def main():
         if hearts == 0:
 
             EVENT = "GAMEOVER"
-            #add other stats to db, add parameter for playtime change libary to datetime and can just add and splice to get hrs to display
+            
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(server_address)
