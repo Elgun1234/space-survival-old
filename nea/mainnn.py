@@ -542,6 +542,8 @@ def menu():
         Settings_button = pygame.Rect((width // 2) - ((Settings_button_text.get_width() + 20) // 2), (height // 2) - ((play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30, Settings_button_text.get_width() + 20, Settings_button_text.get_height() + 20)
 
         ## add stats button
+        stats_button_text = button_font.render("STATS",1,WHITE)
+        stats_button = pygame.Rect((width-stats_button_text.get_width())//2,(height // 2) - ((play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30 ,stats_button_text.get_width() +20,stats_button_text.get_height+20)
 
         Signout_button_text = button_font.render("Sign Out", 1, WHITE)
         Signout_button = pygame.Rect(width - Signout_button_text.get_width() - 20, height - Signout_button_text.get_height() - 20, Signout_button_text.get_width() + 20, Signout_button_text.get_height() + 20)
@@ -551,6 +553,7 @@ def menu():
         button_text.append(play_button_text)
         button_text.append(Settings_button_text)
         button_text.append(Signout_button_text)
+        button_text.append(stats_button_text)
 
         if click:
 
@@ -564,6 +567,10 @@ def menu():
             elif Signout_button.collidepoint((mx, my)):
 
                 EVENT = "START"
+            elif stats_button.collidepoint((mx, my)):
+                EVENT = "STATS"
+                
+            
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -575,9 +582,11 @@ def menu():
             running = False
         if EVENT == "START":
             running = False
+        elif EVENT == "STATS"
+            stats_menu()
         click = False
 
-        menu_draw(button_text, Title_text, account_text, play_button, Settings_button, Signout_button)
+        menu_draw(button_text, Title_text, account_text, play_button, Settings_button, Signout_button,stats_button)
 
 
 def menu_draw(button_text, Title_text, account_text, *args):
