@@ -854,7 +854,7 @@ def game_over_menu(run_duration, bullets_shot):
         d = k // 86400
         h = k // 3600 - (k // 86400) * 24
         m = k // 60 - (k // 3600) * 60
-        s = k - (k // 3600) * 60
+        s = k - (k // 60) * 60
 
         run_duration_text = button_font.render(f"Days: {d} Hours: {h} Minutes: {m} Seconds: {s}", 1, WHITE)
         bullet_count_text = button_font.render(f"You shot {bullets_shot} bullets", 1, WHITE)
