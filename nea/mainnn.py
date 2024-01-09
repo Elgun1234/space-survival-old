@@ -72,7 +72,7 @@ score = 0
 EVENT = ""
 
 
-# EVENTS=: START.MENU,PLAY,LOGIN,SIGNUP,SETTINGS,GAMEOVER,GAME,""
+# EVENTS=: START.MENU,PLAY,LOGIN,SIGNUP,SETTINGS,GAMEOVER,GAME,"",stats,leaderboard
 
 
 class Bullets:
@@ -205,7 +205,7 @@ def login_menu():
                         
 
                     else:
-                        wrong_userpass_text = detail_font.render("Wrong user or pass", 1, RED)
+                        wrong_userpass_text = detail_font.render("Wrong user or pass", 1, RED)## check
                 except:
                     pass
             elif back_button.collidepoint((mx, my)):
@@ -545,6 +545,9 @@ def menu():
         stats_button_text = button_font.render("STATS",1,WHITE)
         stats_button = pygame.Rect((width-stats_button_text.get_width())//2,(height // 2) - ((play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30 ,stats_button_text.get_width() +20,stats_button_text.get_height+20)
 
+        leaderboard_button_text = button_font.render("LEADERBOARD",1,WHITE)
+        leaderboard_button = pygame.Rect((width-leaderboard_button_text.get_width())//2,stats_button.y+20+stats_button_text.get_height()+100,leaderboard_button_text.get_width()+20,leaderboard_button_text.get_height() +20)
+        
         Signout_button_text = button_font.render("Sign Out", 1, WHITE)
         Signout_button = pygame.Rect(width - Signout_button_text.get_width() - 20, height - Signout_button_text.get_height() - 20, Signout_button_text.get_width() + 20, Signout_button_text.get_height() + 20)
 
@@ -553,6 +556,7 @@ def menu():
         button_text.append(Settings_button_text)
         button_text.append(Signout_button_text)
         button_text.append(stats_button_text)
+        button_text.append(leaderboard_button_text)
 
         if click:
 
@@ -568,6 +572,8 @@ def menu():
                 EVENT = "START"
             elif stats_button.collidepoint((mx, my)):
                 EVENT = "STATS"
+            elif leaderboard_button.collidepoint((mx, my)):
+                EVENT = "LEADERBOARD"
                 
             
         for event in pygame.event.get():
@@ -583,9 +589,11 @@ def menu():
             running = False
         elif EVENT == "STATS"
             stats_menu()
+        elif EVENT = "LEADERBOARD":
+            leaderboard_menu()
         click = False
 
-        menu_draw(button_text, Title_text, account_text, play_button, Settings_button, Signout_button,stats_button)
+        menu_draw(button_text, Title_text, account_text, play_button, Settings_button, Signout_button,stats_button,leaderboard_button)
 
 
 def menu_draw(button_text, Title_text, account_text, *args):
@@ -598,6 +606,60 @@ def menu_draw(button_text, Title_text, account_text, *args):
         screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2, buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
     screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, height // 5))
     screen.blit(account_text, (width - button_text[2].get_width() - 20 - account_text.get_width()-20, height - account_text.get_height()))
+
+    pygame.display.update()
+
+def leaderboard_menu():
+    click = False
+    global EVENT
+    button_text = []
+    try:##
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(server_address)
+        data = pickle.dumps(["fetch", logged_username])
+        s.send(data)
+        data = s.recv(1024)
+        received_data = data.decode('utf-8')
+        s.close()
+    except:
+        received_data = "didnt work :/"
+        pass
+    running = True
+    while running:
+
+        if pygame.mouse.get_pressed()[0]:
+            click = True
+
+        mx, my = pygame.mouse.get_pos()
+
+        Title_text = TITLE_font.render("LEADERBOARD", 1, WHITE)
+
+        x_button_text = button_font.render("X", 1, WHITE)
+        x_button = pygame.Rect(width - 100 - (x_button_text.get_width() + 20), 100, x_button_text.get_width() + 20, x_button_text.get_height() + 20)
+
+        if click:
+            if x_button.collidepoint((mx, my)):
+                running = False
+                EVENT = ""
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+
+        button_text.append(x_button_text)
+
+        leaderboard_menu_draw(button_text,Title_text,                x_button)
+
+def leaderboard_menu_draw(button_text,Title_text,                *args):
+    buttons = list(args)
+    screen.blit(stars, (0, 0))
+    pygame.draw.rect(screen, BLACK, (100, 100, width - 200, height - 200))
+    for i in range(len(buttons)):
+        if i == len(buttons):
+            break
+        pygame.draw.rect(screen, WHITE, buttons[i], 3, 1)
+        screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2, buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
 
     pygame.display.update()
 
@@ -621,6 +683,11 @@ def stats_menu():
     
     running = True
     while running:
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
 
         if pygame.mouse.get_pressed()[0]:
             click = True
