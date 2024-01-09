@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import socket
 import pickle
 import random
-
+## fix seconds over 60 in end screen
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ("127.0.0.1", 3100)
