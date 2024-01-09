@@ -707,12 +707,12 @@ def leaderboard_menu_draw(button_text, leaderboard,Title_text, *args):
                                      buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
     screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, 100))
     for i in len(leaderboard):
-        if i ==1:
+        
 
-            screen.blit(leaderboard[i-1][0], (110,100+Title_text.get_height() ))
-
-        else:
-            screen.blit(leaderboard[i - 1][0], (110, 100 + Title_text.get_height()+leaderboard[i - 1][0].get_height()))
+        screen.blit(leaderboard[i-1][0], (110,100+Title_text.get_height() +(i-1)*leaderboard[i-1][0].get_height()))
+        screen.blit(leaderboard[i-1][1], (width - 200-leaderboard[i-1][1],100+Title_text.get_height() +(i-1)*leaderboard[i-1][0].get_height()))
+        
+##
 
 
 
