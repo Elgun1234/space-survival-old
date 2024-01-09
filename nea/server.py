@@ -72,6 +72,10 @@ def update_info(received_data):## datetimme
         cur.execute("UPDATE Information SET playtime = ?,total_score= ?,runs= ?,bullets_shot= ? WHERE Username = ?", (str(new_time),new_total,info[2],new_bullet, received_data[1]))
 
     con.commit()
+def leaderboard_fetch():
+    cur.execute("SELECT Username,highest_score FROM Information ORDER BY highest_score DESC LIMIT 10")
+    return cur.fetchall()
+    
 
 
 
@@ -132,3 +136,5 @@ while True:
         print("fetch")
         sock.send(str(fetch_hours(received_data)).encode())
         sock.close()
+    if received_data[0]=="leaderboard":
+        print("leaderboard")
