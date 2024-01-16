@@ -39,7 +39,7 @@ def add_data(received_data):
         received_data[2].encode(encoding='UTF-8', errors='strict')).digest()))  # look at signup in main
     cur.execute(
         "INSERT INTO Information (Username,playtime, settings, highest_score,total_score,runs,bullets_shot) VALUES (?,?,?,?,?,?,?)",
-        (received_data[1], str(timedelta()), received_data[3], 0, 0, 0, 0))  # 0
+        (received_data[1], str(timedelta()), "2,119,97,115,100", 0, 0, 0, 0))  # 0
     con.commit()
 
 
@@ -121,7 +121,8 @@ while True:
             sock.send(data)
             sock.close()
         else:
-            sock.send("False".encode())
+            data = pickle.dumps(["False"])
+            sock.send(data)
             sock.close()
 
     if received_data[0] == "signup":
