@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 import socket
 import pickle
 import random
+from classes import *
+
 ## fix seconds over 60 in end screen
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,18 +25,21 @@ logged_username = ""
 width, height = 1820, 980
 screen = pygame.display.set_mode((width, height))
 
-up_key = pygame.K_w  # this is just a number in unicode use chr() to go get actual letter
+'''up_key = pygame.K_w  # this is just a number in unicode use chr() to go get actual letter
 down_key = pygame.K_s
 right_key = pygame.K_d
-left_key = pygame.K_a
+left_key = pygame.K_a'''
 
-config = "2,119,97,115,100"
+#config = "2,119,97,115,100"
+
+player = Fighters((1 / 10) * width, height // 2, "XO", 0, 0, (34, 50))
+enemy = Fighters((9 / 10) * width, height // 2, "eneymy", 0, 0, (50, 50))
 
 stars = pygame.image.load("star_sky.jpg")
 stars = pygame.transform.scale(stars, (width, height))
 
-pygame.display.set_caption("gods gift to gamers")
-TITLE = "SPACE FLY SHOOT AI GAME"
+pygame.display.set_caption("Elgun")
+TITLE = "SPACE SURVIVAL"
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -75,37 +80,6 @@ EVENT = ""
 # EVENTS=: START.MENU,PLAY,LOGIN,SIGNUP,SETTINGS,GAMEOVER,GAME,"",stats,leaderboard
 
 
-class Bullets:
-    def __init__(self, pos_x, pos_y, angle, time, bullet_speed, colour):
-        self.colour = colour
-        img = pygame.image.load(f"{self.colour}bullet.png").convert_alpha()
-        self.image = pygame.transform.rotate(img, angle)
-        self.x = pos_x
-        self.y = pos_y
-
-        self.time = time
-
-        self.angle = angle + 90
-        self.xvelo = math.cos(2 * math.pi * (self.angle / 360)) * bullet_speed
-        self.yvelo = math.sin(2 * math.pi * (self.angle / 360)) * bullet_speed
-        if self.angle < -90:
-            self.xvelo = self.xvelo
-            self.yvelo = -self.yvelo
-        if self.angle < 0 and self.angle > -90:
-            self.yvelo = -self.yvelo
-        if angle > -90:
-            self.yvelo = -self.yvelo
-
-
-class Fighters:
-    def __init__(self, center_x, center_y, png, xvelo, yvelo, size):
-        self.img = pygame.image.load(f"{png}.png").convert_alpha()
-        self.img = pygame.transform.scale(self.img, (size))
-        self.rect = self.img.get_rect()
-        self.rect.x = center_x
-        self.rect.y = center_y
-        self.xvelo = xvelo
-        self.yvelo = yvelo
 
 
 player = Fighters((1 / 10) * width, height // 2, "XO", 0, 0, (34, 50))
@@ -383,7 +357,7 @@ def signup_menu():
                         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         s.connect(server_address)
                         print("connected")
-                        data = pickle.dumps(["signup", username, password, config, 0])
+                        data = pickle.dumps(["signup", username, password, 0])
                         s.send(data)
                         print("sent")
                         data = s.recv(1024)  # Receive up to 1024 bytes of data
@@ -456,7 +430,7 @@ def signup_menu_draw(button_text, sign_up_text, username_input_box, username_inp
                 (password_input_box.x, confirm_password_input_box.y - confirm_password_text.get_height()))
 
     screen.blit(user_taken_text, (
-    password_input_box.x, confirm_password_input_box.y + confirm_password_input_box_text.get_height() + 20))
+        password_input_box.x, confirm_password_input_box.y + confirm_password_input_box_text.get_height() + 20))
     screen.blit(not_match_passwords_text, (password_input_box.x,
                                            confirm_password_input_box.y + confirm_password_input_box_text.get_height() + 20 + user_taken_text.get_height() + 10))
 
@@ -481,14 +455,13 @@ def login_signup_menu():
 
         login_button_text = button_font.render("Login", 1, WHITE)
 
-
         login_button = pygame.Rect((width // 2) - ((login_button_text.get_width() + 20) // 2),
                                    (height // 2) - ((login_button_text.get_height() + 20) // 2),
                                    login_button_text.get_width() + 20, login_button_text.get_height() + 20)
 
         sign_up_button_text = button_font.render("Sign Up", 1, WHITE)
         sign_up_button = pygame.Rect((width // 2) - ((sign_up_button_text.get_width() + 20) // 2), (height // 2) - (
-                    (login_button_text.get_height() + 20) // 2) + sign_up_button_text.get_height() + 20 + 30,
+                (login_button_text.get_height() + 20) // 2) + sign_up_button_text.get_height() + 20 + 30,
                                      sign_up_button_text.get_width() + 20, sign_up_button_text.get_height() + 20)
 
         button_text.append(login_button_text)
@@ -567,12 +540,13 @@ def menu():
 
         Settings_button_text = button_font.render("SETTINGS", 1, WHITE)
         Settings_button = pygame.Rect((width // 2) - ((Settings_button_text.get_width() + 20) // 2), (height // 2) - (
-                    (play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30,
+                (play_button_text.get_height() + 20) // 2) + play_button_text.get_height() + 20 + 30,
                                       Settings_button_text.get_width() + 20, Settings_button_text.get_height() + 20)
 
         ## stats?
         stats_button_text = button_font.render("STATS", 1, WHITE)
-        stats_button = pygame.Rect((width - stats_button_text.get_width()) // 2, Settings_button.y +  Settings_button_text.get_height() + 20+100,
+        stats_button = pygame.Rect((width - stats_button_text.get_width()) // 2,
+                                   Settings_button.y + Settings_button_text.get_height() + 20 + 100,
                                    stats_button_text.get_width() + 20, stats_button_text.get_height() + 20)
 
         leaderboard_button_text = button_font.render("LEADERBOARD", 1, WHITE)
@@ -642,7 +616,7 @@ def menu_draw(button_text, Title_text, account_text, *args):
                                      buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
     screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, height // 5))
     screen.blit(account_text, (
-    width - button_text[2].get_width() - 20 - account_text.get_width() - 20, height - account_text.get_height()))
+        width - button_text[2].get_width() - 20 - account_text.get_width() - 20, height - account_text.get_height()))
 
     pygame.display.update()
 
@@ -666,7 +640,7 @@ def leaderboard_menu():
 
     running = True
     while running:
-        print(received_data)
+
 
         if pygame.mouse.get_pressed()[0]:
             click = True
@@ -691,12 +665,15 @@ def leaderboard_menu():
         button_text.append(x_button_text)
         click = False
 
-        leaderboard_menu_draw(button_text, received_data[0],Title_text, x_button)
+        leaderboard_menu_draw(button_text, received_data[0], Title_text, x_button)
 
 
-def leaderboard_menu_draw(button_text, leaderboard,Title_text, *args):
+def leaderboard_menu_draw(button_text, leaderboard, Title_text, *args):
     buttons = list(args)
     screen.blit(stars, (0, 0))
+    texts = []
+    for i in leaderboard:
+        texts.append((button_font.render(f"{i[0]}", 1, WHITE),button_font.render(f"{i[1]}", 1, WHITE)))
 
     pygame.draw.rect(screen, BLACK, (100, 100, width - 200, height - 200))
     for i in range(len(buttons)):
@@ -706,14 +683,13 @@ def leaderboard_menu_draw(button_text, leaderboard,Title_text, *args):
         screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2,
                                      buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
     screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, 100))
-    for i in len(leaderboard):
-        
-
-        screen.blit(leaderboard[i-1][0], (110,100+Title_text.get_height() +(i-1)*leaderboard[i-1][0].get_height()))
-        screen.blit(leaderboard[i-1][1], (width - 200-leaderboard[i-1][1],100+Title_text.get_height() +(i-1)*leaderboard[i-1][0].get_height()))
-        
-##
-
+    #print(len(texts))
+    for i in range(len(texts)):
+        screen.blit(texts[i ][0],
+                    (110, 100 + Title_text.get_height() + (i ) * texts[i][0].get_height()))
+        screen.blit(texts[i ][1], (width - 200 - texts[i ][1].get_width(),
+                                            100 + Title_text.get_height() + (i) * texts[i][
+                                                0].get_height()))
 
 
 
@@ -786,12 +762,16 @@ def stats_menu_draw(button_text, Title_text, username_text, playtime_text, total
         screen.blit(button_text[i], (buttons[i].x + buttons[i].width // 2 - button_text[i].get_width() // 2,
                                      buttons[i].y + buttons[i].height // 2 - button_text[i].get_height() // 2))
     screen.blit(Title_text, (width // 2 - Title_text.get_width() // 2, 100))
-    screen.blit(username_text, (110,Title_text.get_height()+20))
+    screen.blit(username_text, (110, Title_text.get_height() + 20))
     screen.blit(playtime_text, (110, Title_text.get_height() + 30 + username_text.get_height() + 10))
-    screen.blit(total_score_text, (110,Title_text.get_height() + 30 + playtime_text.get_height() + username_text.get_height() + 20))
-    screen.blit(runs_text, (110,Title_text.get_height() + 30 + total_score_text.get_height() + playtime_text.get_height() + username_text.get_height() + 30))
-    screen.blit(bullets_shot_text, (110,Title_text.get_height() + 30 + runs_text.get_height() + total_score_text.get_height() + playtime_text.get_height() + username_text.get_height() + 40))
-    screen.blit(highest_score_text,( 110,Title_text.get_height() + 30 + bullets_shot_text.get_height() + runs_text.get_height() + total_score_text.get_height() + playtime_text.get_height() + username_text.get_height() + 50))
+    screen.blit(total_score_text,
+                (110, Title_text.get_height() + 30 + playtime_text.get_height() + username_text.get_height() + 20))
+    screen.blit(runs_text, (110,
+                            Title_text.get_height() + 30 + total_score_text.get_height() + playtime_text.get_height() + username_text.get_height() + 30))
+    screen.blit(bullets_shot_text, (110,
+                                    Title_text.get_height() + 30 + runs_text.get_height() + total_score_text.get_height() + playtime_text.get_height() + username_text.get_height() + 40))
+    screen.blit(highest_score_text, (110,
+                                     Title_text.get_height() + 30 + bullets_shot_text.get_height() + runs_text.get_height() + total_score_text.get_height() + playtime_text.get_height() + username_text.get_height() + 50))
 
     pygame.display.update()
 
@@ -874,18 +854,7 @@ def game_over_menu(run_duration, bullets_shot):
         button_text.append(play_again_button_text)
         button_text.append(exit_button_text)
 
-        score = 0
-        hearts = 5
-        mg_bullets = []
-        enemy_bullets = []
-        player.xvelo = 0
-        player.yvelo = 0
-        enemy.xvelo = 0
-        enemy.yvelo = 0
-        player.rect.x = (1 / 10) * width
-        player.rect.y = height // 2
-        enemy.rect.x = (9 / 10) * width
-        enemy.rect.y = height // 2
+
 
         if click:
 
@@ -996,7 +965,7 @@ def settings_menu():
         save_button_text = button_font.render("Save", 1, WHITE)
         save_config_button = pygame.Rect(width - 100 - (reset_config_button_text.get_width() + 20),
                                          height - 100 - (reset_config_button_text.get_height() + 20) - (
-                                                     reset_config_button_text.get_height() + 20) - 30,
+                                                 reset_config_button_text.get_height() + 20) - 30,
                                          save_button_text.get_width() + 20, save_button_text.get_height() + 20)
 
         up_key_text = button_font.render("Up:", 1, WHITE)
@@ -1249,7 +1218,7 @@ def shooting(mg_bullets, angle, bullets_shot):
 
 
 def bullet_stuff(mg_bullets, enemy_bullets):
-    global hearts, time_last_damaged, EVENT, score
+    global hearts, EVENT, score
     for i in mg_bullets:
         if i.x < enemy.rect.x + 48 and i.x > enemy.rect.x and i.y < enemy.rect.y + 48 and i.y > enemy.rect.y:
             enemy_HIT = True
@@ -1397,8 +1366,17 @@ def main():
     MOVING = False
     run_start = datetime.now()
     bullets_shot = 0
+    score = 0
+    hearts = 5
+    mg_bullets = []
+    enemy_bullets = []
+
+
+
+
     x = 0
     while run:
+
         clock.tick(FPS)
         x += 1
 
@@ -1411,6 +1389,7 @@ def main():
 
         run_duration = datetime.now() - run_start
         if EVENT == "GAMEOVER":
+            print("dsad")
             game_over_menu(run_duration, bullets_shot)
 
         run_timer = button_font.render(f"{run_duration.total_seconds()}"[:-4], 1, WHITE)
@@ -1519,20 +1498,21 @@ def main():
         keep_on_screeen(enemy)
 
         bullet_stuff(mg_bullets, enemy_bullets)
+        print(hearts)
 
         if hearts == 0:
 
             EVENT = "GAMEOVER"
 
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect(server_address)
-                data = pickle.dumps(["hours", logged_username, str(run_duration)[:-7], score, bullets_shot])
-                s.send(data)
-                s.close()
+            '''try:'''
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(server_address)
+            data = pickle.dumps(["hours", logged_username, str(run_duration)[:-7], score, bullets_shot])
+            s.send(data)
+            s.close()
 
-            except:
-                pass
+            '''except:
+                pass'''
 
         player_movement(player)
         draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets, run_timer, score_text)
