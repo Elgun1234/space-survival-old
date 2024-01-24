@@ -1,6 +1,6 @@
-import pip
+'''import pip
 
-pip.main(["install", "--user", "Pygame"])
+pip.main(["install", "--user", "Pygame"])'''
 import pygame
 import math
 from datetime import datetime, timedelta
@@ -11,80 +11,18 @@ from classes import *
 
 ## fix seconds over 60 in end screen
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ("127.0.0.1", 3100)
-
-pygame.font.init()
-
-button_font = pygame.font.Font("ShortBaby-Mg2w.ttf", 30)
-TITLE_font = pygame.font.Font("ChrustyRock-ORLA.ttf", 100)
-detail_font = pygame.font.Font("FontsFree-Net-calibri-regular.ttf", 30)
-
-logged_username = ""
-
-width, height = 1820, 980
-screen = pygame.display.set_mode((width, height))
-
-'''up_key = pygame.K_w  # this is just a number in unicode use chr() to go get actual letter
-down_key = pygame.K_s
-right_key = pygame.K_d
-left_key = pygame.K_a'''
-
-# config = "2,119,97,115,100"
-
-player = Fighters((1 / 10) * width, height // 2, "XO", 0, 0, (34, 50))
-enemy = Fighters((9 / 10) * width, height // 2, "eneymy", 0, 0, (50, 50))
-
-stars = pygame.image.load("star_sky.jpg")
-stars = pygame.transform.scale(stars, (width, height))
-
-pygame.display.set_caption("Elgun")
-TITLE = "SPACE SURVIVAL"
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-colours = ['red', 'green', 'blue', 'yellow', 'pink', 'cyan', 'orange']
-
-FPS = 60
-
 # can move to class
-speed = 1
-vert_max = 12
-hor_max = 12
-friction = 0.93  # higher = more slide
-
-long_move_speed = 0.5
-long_vert_max = 10
-long_hor_max = 10
-
-mg_speed = 7
-mg_bullets = []
-mg_tl = 7
-mg_dmg = 5
-max_mg = 200
-
-enemy_bullets = []
-eb_speed = 3
-eb_dmg = 5
-
-heart_img = pygame.image.load(f"heart.png").convert_alpha()
-heart_img = pygame.transform.scale(heart_img, (50, 50))
-hearts = 5
-
-score = 0
-
-EVENT = ""
 
 
 
-player = Fighters((1 / 10) * width, height // 2, "XO", 0, 0, (34, 50))
-enemy = Fighters((9 / 10) * width, height // 2, "eneymy", 0, 0, (50, 50))
+
+
+
 
 
 def login_menu():  ###
     click = False
-    global config
+
     password_dots = ""
     password = ""
     username = ""
@@ -173,7 +111,7 @@ def login_menu():  ###
                         logged_username = username
                         apply_config(received_data[1])
                         config = received_data[1]###
-                        return EVENT, logged_username
+                        return EVENT, logged_username,config
 
 
                     else:
@@ -183,8 +121,8 @@ def login_menu():  ###
                     pass
             elif back_button.collidepoint((mx, my)):
                 """running = False"""
-                EVENT = "START"
-                return EVENT, None
+                EVENT = "login_signup"
+                return EVENT, None,None
             elif username_input_box.collidepoint((mx, my)):
                 username_collection = True
                 password_collection = False
@@ -367,7 +305,8 @@ def signup_menu():  ###
                             EVENT = "MENU"
                             logged_username = username
                             print("menu")
-                            return EVENT, logged_username
+                            config ="2,119,97,115,100"
+                            return EVENT, logged_username,config
 
 
                         else:
@@ -379,8 +318,8 @@ def signup_menu():  ###
                     not_match_passwords_text = result[1]
             elif back_button.collidepoint((mx, my)):
                 '''running = False'''
-                EVENT = "START"
-                return EVENT, None
+                EVENT = "login_signup"
+                return EVENT, None,None
 
             elif username_input_box.collidepoint((mx, my)):
                 username_collection = True
@@ -456,7 +395,8 @@ def login_signup_menu():  ###
 
         mx, my = pygame.mouse.get_pos()
 
-        Title_text = TITLE_font.render(TITLE, 1, WHITE)
+
+        Title_text = TITLE_font.render("SPACE SURVIVAL", 1, WHITE)
 
         login_button_text = button_font.render("Login", 1, WHITE)
 
@@ -512,7 +452,7 @@ def login_signup_menu_draw(button_text, Title_text, *args):
     pygame.display.update()
 
 
-def menu():  ####
+def menu(logged_username):  ####
     click = False
 
     button_text = []
@@ -538,7 +478,7 @@ def menu():  ####
             click = True
 
         mx, my = pygame.mouse.get_pos()
-        Title_text = TITLE_font.render(TITLE, 1, WHITE)
+        Title_text = TITLE_font.render("SPACE SURVIVAL", 1, WHITE)
 
         play_button_text = button_font.render("PLAY", 1, WHITE)
         play_button = pygame.Rect((width // 2) - ((play_button_text.get_width() + 20) // 2),
@@ -710,7 +650,7 @@ def leaderboard_menu_draw(button_text, leaderboard, Title_text, *args):
     pygame.display.update()
 
 
-def stats_menu():  ###
+def stats_menu(logged_username):  ###
     click = False
 
     button_text = []
@@ -792,8 +732,8 @@ def stats_menu_draw(button_text, Title_text, username_text, playtime_text, total
     pygame.display.update()
 
 
-def apply_config(config):  ###
-    global screen,stars
+def apply_config(config):
+    global screen,stars,width,height
     choices = config.split(",")
     if choices[0] == "1":
         width = 1920
@@ -819,14 +759,11 @@ def apply_config(config):  ###
         screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         stars = pygame.image.load("star_sky.jpg")
         stars = pygame.transform.scale(stars, (width, height))
-    up_key = int(choices[1])
-    left_key = int(choices[2])
-    down_key = int(choices[3])
-    right_key = int(choices[4])
 
 
 
-def game_over_menu(run_duration, bullets_shot):  ###
+
+def game_over_menu(run_duration, bullets_shot,score):  ###
 
     button_text = []
     running = True
@@ -874,14 +811,15 @@ def game_over_menu(run_duration, bullets_shot):  ###
 
             if play_again_button.collidepoint((mx, my)):
                 EVENT = "GAME"
-                main()
+                return EVENT
             if exit_button.collidepoint((mx, my)):
                 EVENT = "MENU"
-                main()
+                return EVENT
+
 
         game_over_menu_draw(button_text, Title_text, run_duration_text, bullet_count_text, score_text,
                             play_again_button, exit_button)
-    return EVENT, score, hearts, mg_bullets, enemy_bullets
+        """ return EVENT, score, hearts, mg_bullets, enemy_bullets"""
 
 
 def game_over_menu_draw(button_text, Title_text, run_duration_text, bullet_count_text, score_text, *args):
@@ -901,8 +839,8 @@ def game_over_menu_draw(button_text, Title_text, run_duration_text, bullet_count
     pygame.display.update()
 
 
-def settings_menu():  ####
-    global config, screen, stars
+def settings_menu(logged_username,config):  ####
+    global screen,stars,TITLE_font,width,height
     up_key_collection = False
     left_key_collection = False
     down_key_collection = False
@@ -942,6 +880,11 @@ def settings_menu():  ####
                     config = ",".join(config)
 
         #### think of whether up keys should be global as used to move
+        choices = config.split(",")
+        up_key = int(choices[1])
+        left_key = int(choices[2])
+        down_key = int(choices[3])
+        right_key = int(choices[4])
 
         mx, my = pygame.mouse.get_pos()
 
@@ -1020,16 +963,17 @@ def settings_menu():  ####
             if x_button.collidepoint((mx, my)):
 
                 EVENT = "MENU"
-                return EVENT
+                return EVENT,config
             if reset_config_button.collidepoint((mx, my)):
                 apply_config("2,119,97,115,100")
-                config = "2,119,97,115,100"
+                
             if save_config_button.collidepoint((mx, my)):
                 try:
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     s.connect(server_address)
                     data = pickle.dumps(["config", logged_username, config])
                     s.send(data)
+                    
                     data = s.recv(1024)
                     received_data = data.decode('utf-8')
                     if received_data == "True":
@@ -1117,6 +1061,7 @@ def settings_menu_draw(button_text, Window_Size_text, up_key_text, left_key_text
     buttons = list(args)
     screen.blit(stars, (0, 0))
     pygame.draw.rect(screen, BLACK, (100, 100, width - 200, height - 200))
+
     for i in range(len(buttons)):
         if i == len(buttons):
             break
@@ -1161,7 +1106,7 @@ def pause_menu():  ###
         if click:
             if x_button.collidepoint((mx, my)):
                 running = False
-                EVENT = ""
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1169,11 +1114,11 @@ def pause_menu():  ###
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-                    EVENT = ""
+
         click = False
         if pygame.mouse.get_pressed()[0]:
             click = True
-    return EVENT
+
 
 
 def pause_menu_draw(button_text, pause_text, *args):
@@ -1191,7 +1136,17 @@ def pause_menu_draw(button_text, pause_text, *args):
     pygame.display.update()
 
 
-def player_movement(player, up_key, down_key, right_key, left_key):
+def player_movement(player,config):
+    speed = 1
+    vert_max = 12
+    hor_max = 12
+    friction = 0.93  # higher = more slide
+
+    choices = config.split(",")
+    up_key = int(choices[1])
+    left_key = int(choices[2])
+    down_key = int(choices[3])
+    right_key = int(choices[4])
     keys = pygame.key.get_pressed()
 
     if keys[up_key]:
@@ -1228,6 +1183,11 @@ def keep_on_screeen(player):
 
 
 def shooting(mg_bullets, angle, bullets_shot):
+    mg_speed = 7
+
+
+
+    colours = ['red', 'green', 'blue', 'yellow', 'pink', 'cyan', 'orange']
     buttons = pygame.mouse.get_pressed()
     if buttons[0]:
         mg_bullets.append(
@@ -1237,6 +1197,8 @@ def shooting(mg_bullets, angle, bullets_shot):
 
 
 def bullet_stuff(mg_bullets, enemy_bullets, score, hearts):  ###
+    mg_tl = 7
+    max_mg = 200
 
     for i in mg_bullets:
         if i.x < enemy.rect.x + 48 and i.x > enemy.rect.x and i.y < enemy.rect.y + 48 and i.y > enemy.rect.y:
@@ -1266,10 +1228,12 @@ def bullet_stuff(mg_bullets, enemy_bullets, score, hearts):  ###
             enemy_bullets.remove(i)
         if len(mg_bullets) > max_mg:
             del mg_bullets[0]
-    return hearts, EVENT, score
+    return hearts, score
 
 
-def draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets, run_timer, score_text):
+def draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets, run_timer, score_text,hearts):
+    heart_img = pygame.image.load(f"heart.png").convert_alpha()
+    heart_img = pygame.transform.scale(heart_img, (50, 50))
     screen.fill(BLACK)
 
     screen.blit(enemy.img, (enemy.rect.x, enemy.rect.y))
@@ -1295,26 +1259,33 @@ def draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets, run_timer, score_
 
 
 def cross_shooting(enemy_bullets, enemy):
+
+    eb_speed = 3
+
     for i in range(0, 271, 90):
         enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, i, 0, eb_speed, "white"))
 
 
 def diag_shooting(enemy_bullets, enemy):
+    eb_speed = 3
     for i in range(45, 316, 90):
         enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, i, 0, eb_speed, "white"))
 
 
 def star_shooting(enemy_bullets, enemy):
+    eb_speed = 3
     for i in range(0, 316, 45):
         enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, i, 0, eb_speed, "white"))
 
 
 def spiral_shooting(enemy_bullets, enemy, x):
+    eb_speed = 3
     if ((x + 25) % 25) not in range(15, 25):
         enemy_bullets.append(Bullets(enemy.rect.x + 25, enemy.rect.y + 25, ((x + 25) % 25) * 24, 0, eb_speed, "white"))
 
 
 def aimbot(enemy_bullets, player, enemy):
+    eb_speed = 3
     dx, dy = player.rect.x - enemy.rect.x, player.rect.y - enemy.rect.y
     angle = math.degrees(math.atan2(dy, -dx)) + 90
     if angle < 0:
@@ -1323,6 +1294,9 @@ def aimbot(enemy_bullets, player, enemy):
 
 
 def long_move_mech(start, x, enemy_angle):  # fix ts so it works on any res
+    long_move_speed = 0.5
+    long_vert_max = 10
+    long_hor_max = 10
 
     if x - start < 60:
 
@@ -1369,48 +1343,84 @@ def short_move_mech(x, a, b, c):
 
 
 def main():  ###
+    global player,enemy,s,server_address,button_font,TITLE_font,detail_font,width,height,screen, stars,BLACK,WHITE,RED
+
     #width heigh may have to be global can remove config global after dont know ab stars and screen fix first
-    event_level = {"login_signup": 1, "LOGIN": 2, "SIGNUP": 2,"MENU":3,"SETTINGS":4,"STATS":4,"LEADERBOARD":4,"GAME":5}
+
+    #title only used in 2 places
+
+    event_level = {"login_signup": 1, "LOGIN": 2, "SIGNUP": 2,"MENU":3,"SETTINGS":4,"STATS":4,"LEADERBOARD":4,"GAME":4,"GAME OVER":5}
     EVENT = "login_signup"
+
+    width, height = 1820, 980
+    screen = pygame.display.set_mode((width, height))
+
+    player = Fighters((1 / 10) * width, height // 2, "XO", 0, 0, (34, 50))
+    enemy = Fighters((9 / 10) * width, height // 2, "eneymy", 0, 0, (50, 50))
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = ("127.0.0.1", 3100)
+
+    pygame.font.init()
+
+    stars = pygame.image.load("star_sky.jpg")
+    stars = pygame.transform.scale(stars, (width, height))
+
+    pygame.display.set_caption("Elgun")
+
+    button_font = pygame.font.Font("ShortBaby-Mg2w.ttf", 30)
+    TITLE_font = pygame.font.Font("ChrustyRock-ORLA.ttf", 100)
+    detail_font = pygame.font.Font("FontsFree-Net-calibri-regular.ttf", 30)
+
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+    RED = (255, 0, 0)
+
     while True:
         if event_level[EVENT] == 1:
             EVENT = login_signup_menu()
 
             if EVENT == "LOGIN":
-                EVENT, logged_username = login_menu()
+                EVENT, logged_username,config = login_menu()
                 continue
 
             if EVENT == "SIGNUP":
-                EVENT, logged_username = signup_menu()
+                EVENT, logged_username,config = signup_menu()
                 continue
 
         if event_level[EVENT] == 3:####
-            EVENT=menu()
+            EVENT=menu(logged_username)
             if EVENT == "SETTINGS":
-                EVENT=settings_menu()
+                EVENT,config=settings_menu(logged_username,config)
                 continue
-            if EVENT == "GAME":
-                =game()
-                continue
-            if EVENT == "login_signup":
+
+            elif EVENT == "login_signup":
                 continue
 
             elif EVENT == "STATS":
-                EVENT=stats_menu()
+                EVENT=stats_menu(logged_username)
                 continue
             elif EVENT == "LEADERBOARD":
                 EVENT=leaderboard_menu()
                 continue
+            else:
+                continue
+        if event_level[EVENT] == 4:
+           if EVENT == "GAME":
+                EVENT,run_duration, bullets_shot,score=game(logged_username,config)
+                continue
+
+        if event_level[EVENT] == 5:
+            if EVENT == "GAME OVER":
+                EVENT = game_over_menu(run_duration, bullets_shot,score)
+                continue
 
 
 
-def game():  ###
+def game(logged_username,config):  ###
 
     clock = pygame.time.Clock()
-    if EVENT == "MENU":
-        menu()
-    elif EVENT != "GAME":
-        login_signup_menu()
+
     run = True
     long_move = False
     short_move = False
@@ -1426,10 +1436,14 @@ def game():  ###
     hearts = 5
     mg_bullets = []
     enemy_bullets = []
-    up_key = pygame.K_w  # this is just a number in unicode use chr() to go get actual letter
-    down_key = pygame.K_s
-    right_key = pygame.K_d
-    left_key = pygame.K_a
+
+    FPS = 60
+
+    '''choices = config.split(",")
+    up_key = int(choices[1])
+    left_key = int(choices[2])
+    down_key = int(choices[3])
+    right_key = int(choices[4])'''
 
     x = 0
     while run:
@@ -1445,9 +1459,9 @@ def game():  ###
                     pause_menu()
 
         run_duration = datetime.now() - run_start
-        if EVENT == "GAMEOVER":
+        ''' if EVENT == "GAMEOVER":
             print("dsad")
-            game_over_menu(run_duration, bullets_shot)
+            game_over_menu(run_duration, bullets_shot)'''
 
         run_timer = button_font.render(f"{run_duration.total_seconds()}"[:-4], 1, WHITE)
 
@@ -1554,11 +1568,12 @@ def game():  ###
         keep_on_screeen(player)
         keep_on_screeen(enemy)
 
-        bullet_stuff(mg_bullets, enemy_bullets, score, hearts)
-        print(hearts)
+        hearts,score = bullet_stuff(mg_bullets, enemy_bullets, score, hearts)
+
 
         if hearts == 0:
-            EVENT = "GAMEOVER"
+            EVENT = "GAME OVER"
+
 
             '''try:'''
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -1569,9 +1584,10 @@ def game():  ###
 
             '''except:
                 pass'''
+            return EVENT,run_duration, bullets_shot,score
 
-        player_movement(player, up_key, down_key, right_key, left_key)
-        draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets, run_timer, score_text)
+        player_movement(player,config)
+        draw(rot_image, rot_image_rect, mg_bullets, enemy_bullets, run_timer, score_text,hearts)
 
 
 if __name__ == "__main__":
